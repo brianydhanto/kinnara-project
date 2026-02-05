@@ -293,7 +293,7 @@ export class App {
       };
 
       this.mediaRecorder.start()
-      this.onSpeech()
+      // this.onSpeech()
       this.isRecording.set(true)
       
     } catch (err) {

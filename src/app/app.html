@@ -125,7 +125,7 @@
     } @else if (type === 'record') {
       <div>
         <button (click)="startRecording()" [disabled]="isPlay()" class="{{ isPlay() ? 'bg-gray-400' : 'bg-blue-400'}} text-white p-2 rounded-sm cursor-pointer">Start</button>
-        <button (click)="stopRecording()"  [disabled]="!isRecording()" class=" {{ isComplete() && isRecording() ? 'bg-green-400' : 'bg-gray-400'}} text-white p-2 ml-4 rounded-sm cursor-pointer">Complete</button>
+        <button (click)="stopRecording()"  class="bg-green-400 text-white p-2 ml-4 rounded-sm cursor-pointer">Complete</button>
         <!-- <button (click)="convert()" class="bg-green-400 text-white p-2 ml-4 rounded-sm cursor-pointer">Convert</button> -->
       </div>
     }
