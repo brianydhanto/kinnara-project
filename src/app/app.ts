@@ -6,6 +6,15 @@ import { RouterOutlet } from '@angular/router';
 import { Camera } from '@mediapipe/camera_utils';
 import { FaceMesh } from '@mediapipe/face_mesh';
 import { BehaviorSubject } from 'rxjs';
+import {
+  drawConnectors,
+  drawLandmarks
+} from '@mediapipe/drawing_utils';
+import {
+  FACEMESH_TESSELATION,
+  FACEMESH_RIGHT_EYE,
+  FACEMESH_LEFT_EYE
+} from '@mediapipe/face_mesh';
 
 declare global {
   interface Window {
@@ -35,7 +44,6 @@ export class App {
   set canvas(el: ElementRef<HTMLCanvasElement>) {
     if (el) {
       this.canvasRef = el;
-      this.initCamera();
     }
   }
   canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -96,25 +104,51 @@ export class App {
   blinkCount = 0;
   eyeClosed = false;
   onResults(results: any) {
-    if (!results.multiFaceLandmarks) return;
+      if (!results.multiFaceLandmarks) return;
 
-    const landmarks = results.multiFaceLandmarks[0];
+      const canvas = this.canvasRef.nativeElement;
+      const ctx = canvas.getContext('2d')!;
 
-    const ear = this.calculateEAR(landmarks);
+      canvas.width = results.image.width;
+      canvas.height = results.image.height;
 
-    if (ear < 0.2 && !this.eyeClosed) {
-      this.eyeClosed = true;
-    }
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (ear > 0.25 && this.eyeClosed) {
-      this.blinkCount++;
-      this.eyeClosed = false;
-      if (this.blinkCount > 1) {
-        this.passed.set(true);
-        this.takePhoto();
+      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
+      const landmarks = results.multiFaceLandmarks[0];
+
+      drawConnectors(
+        ctx,
+        landmarks,
+        FACEMESH_TESSELATION,
+        { color: '#00FF00', lineWidth: 1 }
+      );
+
+      drawLandmarks(ctx, landmarks, {
+        color: '#FF0000',
+        radius: 1
+      });
+
+      ctx.restore();
+
+      const ear = this.calculateEAR(landmarks);
+
+      if (ear < 0.2 && !this.eyeClosed) {
+        this.eyeClosed = true;
+      }
+
+      if (ear > 0.25 && this.eyeClosed) {
+        this.blinkCount++;
+        this.eyeClosed = false;
+
+        if (this.blinkCount > 1) {
+          this.passed.set(true);
+          this.takePhoto();
+        }
       }
     }
-  }
 
   calculateEAR(landmarks: any[]) {
     const vertical =
