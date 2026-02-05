@@ -30,7 +30,7 @@ declare global {
 })
 export class App {
   
-  protected readonly title = signal('text-audio-app');
+  protected readonly title = signal('mirecord-poc');
   @ViewChild('video')
   set video(el: ElementRef<HTMLVideoElement>) {
     if (el) {
