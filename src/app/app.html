@@ -1,0 +1,135 @@
+<main class="main">
+  <div class="content">
+    <h1>Text & Speech Converter</h1>
+    <div class="form-container">
+      <label>
+        <input
+          type="radio"
+          name="source"
+          value="text"
+          [(ngModel)]="type"
+        />
+        Text
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="source"
+          value="document"
+          [(ngModel)]="type"
+        />
+        Document
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="source"
+          value="speech"
+          [(ngModel)]="type"
+          (ngModelChange)="initCamera()"
+        />
+        Speech to text
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="source"
+          value="record"
+          [(ngModel)]="type"
+        />
+        Record
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="source"
+          value="detection"
+          [(ngModel)]="type"
+        />
+        Face Detection
+      </label>
+    </div>
+
+    @if (type === 'text') {
+      <div>
+        <textarea
+        class="w-100 rounded-2xl p-2 outline-0 border border-gray-500"
+        rows="5"
+        [(ngModel)]="textInput"
+        placeholder="Masukkan teks...">
+        </textarea>
+      </div>
+    } @else if (type === 'document') {
+      <div class="file-wrapper">
+        <label class="file-btn">
+          Choose File
+          <input
+            type="file"
+            (change)="onFileSelected($event)"
+            hidden
+          />
+        </label>
+
+        <span class="file-name">
+          {{ selectedFileName || 'No file chosen' }}
+        </span>
+      </div>
+    } @else if (type === 'speech') {
+      <textarea
+        class="w-100 rounded-2xl p-2 outline-0 border border-gray-500"
+        rows="6"
+        [value]="transcrip | async"
+        readonly
+      ></textarea>
+    } @else if (type === 'record') {
+      <!-- <video #video autoplay playsinline></video> -->
+      <textarea
+        class="w-100 rounded-2xl p-2 outline-0 border border-gray-500"
+        rows="6"
+        [value]="transcript()"
+        readonly
+      ></textarea>
+      @if(audioUrl()) {
+        <div class="py-4">
+          <audio [src]="audioUrl()" controls></audio>
+        </div>
+        <!-- <div class="py-4">
+          <video [src]="audioUrl()" controls></video>
+        </div> -->
+      }
+    } @else if (type === 'detection') {
+      <video #video autoplay playsinline></video>
+      <canvas #canvas hidden></canvas>
+
+      @if (!passed()) {
+        <p>Silakan kedipkan mata</p>
+      } @else {
+        <p>Liveness berhasil</p>
+      }
+    }
+
+    @if (type === 'text' || type === 'document') {
+      <div>
+        <button (click)="onSpeak(type)" [disabled]="isPlay()" class="{{ isPlay() ? 'bg-gray-400' : 'bg-blue-400'}} text-white p-2 rounded-sm cursor-pointer">Speak</button>
+        <button (click)="onStop()" [disabled]="!isPlay()" class="{{ isPlay() ? 'bg-red-400' : 'bg-gray-400'}} text-white p-2 ml-4 rounded-sm cursor-pointer">Stop</button>
+      </div>
+    } @else if (type === 'speech') {
+      <div>
+        <button (click)="onSpeak(type)" [disabled]="isPlay()" class="{{ isPlay() ? 'bg-gray-400' : 'bg-blue-400'}} text-white p-2 rounded-sm cursor-pointer">Speak</button>
+        <button (click)="onStop()" [disabled]="!isComplete()" class="{{ isComplete() ? 'bg-green-400' : 'bg-gray-400'}} text-white p-2 ml-4 rounded-sm cursor-pointer">Complete</button>
+      </div>
+    } @else if (type === 'record') {
+      <div>
+        <button (click)="startRecording()" [disabled]="isPlay()" class="{{ isPlay() ? 'bg-gray-400' : 'bg-blue-400'}} text-white p-2 rounded-sm cursor-pointer">Start</button>
+        <button (click)="stopRecording()"  [disabled]="!isRecording()" class=" {{ isComplete() && isRecording() ? 'bg-green-400' : 'bg-gray-400'}} text-white p-2 ml-4 rounded-sm cursor-pointer">Complete</button>
+        <!-- <button (click)="convert()" class="bg-green-400 text-white p-2 ml-4 rounded-sm cursor-pointer">Convert</button> -->
+      </div>
+    }
+  </div>
+</main>
+
+<router-outlet />
