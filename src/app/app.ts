@@ -103,8 +103,11 @@ export class App {
 
   blinkCount = 0;
   eyeClosed = false;
+  lastFaceSeenAt = Date.now();
+  faceLostTimeout = 1500; 
+  isFaceVisible = signal(true);
   onResults(results: any) {
-      if (!results.multiFaceLandmarks) return;
+      // if (!results.multiFaceLandmarks) return;
 
       const canvas = this.canvasRef.nativeElement;
       const ctx = canvas.getContext('2d')!;
@@ -115,7 +118,18 @@ export class App {
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+      if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
+        // wajah tidak terdeteksi
+        if (Date.now() - this.lastFaceSeenAt > this.faceLostTimeout) {
+          this.isFaceVisible.set(false);
+        }
+        return;
+      }
+
+      this.lastFaceSeenAt = Date.now();
+      this.isFaceVisible.set(true);
+
+      // ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
       const landmarks = results.multiFaceLandmarks[0];
 

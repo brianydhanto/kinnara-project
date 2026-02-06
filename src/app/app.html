@@ -104,8 +104,10 @@
         </div> -->
       }
     } @else if (type === 'detection') {
-      <video #video autoplay playsinline></video>
-      <canvas #canvas></canvas>
+      <div class="camera-wrapper">
+        <video #video autoplay playsinline></video>
+        <canvas #canvas></canvas>
+      </div>
 
       @if (!passed()) {
         <p>Silakan kedipkan mata</p>
