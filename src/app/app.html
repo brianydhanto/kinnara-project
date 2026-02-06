@@ -29,6 +29,7 @@
           value="speech"
           [(ngModel)]="type"
           (ngModelChange)="initCamera()"
+          (click)="onResetTranscript()"
         />
         Speech to text
       </label>
@@ -39,6 +40,7 @@
           name="source"
           value="record"
           [(ngModel)]="type"
+          (click)="onResetTranscript()"
         />
         Record
       </label>
@@ -82,7 +84,7 @@
       <textarea
         class="w-100 rounded-2xl p-2 outline-0 border border-gray-500"
         rows="6"
-        [value]="transcrip | async"
+        [value]="transcript()"
         readonly
       ></textarea>
     } @else if (type === 'record') {

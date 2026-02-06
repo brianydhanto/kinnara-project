@@ -327,7 +327,7 @@ export class App {
       };
 
       this.mediaRecorder.start()
-      // this.onSpeech()
+      this.onSpeech()
       this.isRecording.set(true)
       
     } catch (err) {
@@ -342,6 +342,10 @@ export class App {
       this.onStop();
       this.isRecording.set(false)
     }
+  }
+
+  onResetTranscript() {
+    this.transcript.set("");
   }
   
 }
