@@ -124,6 +124,7 @@ export class App {
   lastFaceSeenAt = Date.now();
   faceLostTimeout = 1500; 
   isFaceVisible = signal(true);
+  eyeResult = signal<any>(0)
   onResults(results: any) {
       // if (!results.multiFaceLandmarks) return;
       if (!this.videoRef || !this.canvasRef) return;
@@ -171,16 +172,20 @@ export class App {
       ctx.restore();
 
       const ear = this.calculateBothEyesEAR(landmarks);
-
       if (ear < 0.23 && !this.eyeClosed) {
         this.eyeClosed = true;
+        // console.log(ear)
+
       }
 
       if (ear > 0.28 && this.eyeClosed) {
         this.blinkCount++;
         this.eyeClosed = false;
+        // console.log(ear)
+
 
         if (this.blinkCount > 1) {
+          this.eyeResult.set(ear)
           this.passed.set(true);
           this.takePhoto();
         }
@@ -244,7 +249,6 @@ export class App {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const photo = canvas.toDataURL('image/jpeg', 0.9);
-    console.log('Snapshot:', photo);
   }
 
   convert() {
