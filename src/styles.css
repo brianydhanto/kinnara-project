@@ -17,7 +17,7 @@ html {
 .camera-wrapper {
   position: relative;
   width: 100%;
-  max-width: 720px;
+  /* max-width: 720px; */
   aspect-ratio: 3 / 2; /* 720x480 */
   margin: auto;
 }
@@ -111,10 +111,8 @@ input[type=file] {
 }
 
 .content {
-    border: solid gray 1px;
     padding: 1rem;
     width: 100%;
-    max-width: 720px;
 }
 
 .todo-list {

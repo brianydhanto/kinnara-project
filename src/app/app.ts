@@ -135,8 +135,8 @@ export class App {
       onFrame: async () => {
         await faceMesh.send({ image: this.videoRef.nativeElement });
       },
-      width: 720,
-      height: 480,
+      width: 1280,
+      height: 720,
     });
 
     camera.start();
