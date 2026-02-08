@@ -196,18 +196,18 @@ export class App {
 
     if (eye === 'left') {
       vertical =
-        this.distance(landmarks[160], landmarks[144]) +
-        this.distance(landmarks[158], landmarks[153]);
+        this.distance3D(landmarks[160], landmarks[144]) +
+        this.distance3D(landmarks[158], landmarks[153]);
 
       horizontal =
-        this.distance(landmarks[33], landmarks[133]);
+        this.distance3D(landmarks[33], landmarks[133]);
     } else {
       vertical =
-        this.distance(landmarks[385], landmarks[380]) +
-        this.distance(landmarks[387], landmarks[373]);
+        this.distance3D(landmarks[385], landmarks[380]) +
+        this.distance3D(landmarks[387], landmarks[373]);
 
       horizontal =
-        this.distance(landmarks[362], landmarks[263]);
+        this.distance3D(landmarks[362], landmarks[263]);
     }
 
     return vertical / (2.0 * horizontal);
@@ -222,6 +222,14 @@ export class App {
 
   distance(a: any, b: any) {
     return Math.hypot(a.x - b.x, a.y - b.y);
+  }
+
+  distance3D(a: any, b: any) {
+    return Math.sqrt(
+      Math.pow(a.x - b.x, 2) +
+      Math.pow(a.y - b.y, 2) +
+      Math.pow(a.z - b.z, 2)
+    );
   }
 
   takePhoto() {
