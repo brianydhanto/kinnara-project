@@ -92,6 +92,29 @@ export class App {
     ctx.scale(-1, 1);
   }
 
+  isIOS =
+    /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  isPortrait() {
+    return window.innerHeight > window.innerWidth;
+  }
+
+  rotateLandmarksToPortrait(
+    landmarks: any[],
+    imageWidth: number,
+    imageHeight: number
+  ) {
+    return landmarks.map(p => {
+      // rotate -90 deg (clockwise)
+      return {
+        x: p.y,
+        y: 1 - p.x,
+        z: p.z,
+      };
+    });
+  }
+
   initCamera() {
     const faceMesh = new FaceMesh({
       locateFile: (file) =>
@@ -152,7 +175,15 @@ export class App {
 
       // ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
-      const landmarks = results.multiFaceLandmarks[0];
+      let landmarks = results.multiFaceLandmarks[0];
+
+      if (this.isIOS && this.isPortrait()) {
+        landmarks = this.rotateLandmarksToPortrait(
+          landmarks,
+          results.image.width,
+          results.image.height
+        );
+      }
 
       drawConnectors(
         ctx,
