@@ -142,6 +142,65 @@ export class App {
     camera.start();
   }
 
+  getEyeAxis(a: any, b: any) {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+
+    const length = Math.hypot(dx, dy);
+
+    return {
+      x: dx / length,
+      y: dy / length,
+    };
+  }
+
+  getNormal(axis: { x: number; y: number }) {
+    return {
+      x: -axis.y,
+      y: axis.x,
+    };
+  }
+
+  projectDistance(a: any, b: any, normal: any) {
+    const dx = a.x - b.x;
+    const dy = a.y - b.y;
+
+    return Math.abs(dx * normal.x + dy * normal.y);
+  }
+
+  calculateEyeEARPortraitSafe(
+  landmarks: any[],
+  eye: 'left' | 'right'
+) {
+  let outer, inner, v1a, v1b, v2a, v2b;
+
+  if (eye === 'left') {
+    outer = landmarks[33];
+    inner = landmarks[133];
+    v1a = landmarks[160];
+    v1b = landmarks[144];
+    v2a = landmarks[158];
+    v2b = landmarks[153];
+  } else {
+    outer = landmarks[362];
+    inner = landmarks[263];
+    v1a = landmarks[385];
+    v1b = landmarks[380];
+    v2a = landmarks[387];
+    v2b = landmarks[373];
+  }
+
+  const axis = this.getEyeAxis(outer, inner);
+  const normal = this.getNormal(axis);
+
+  const v1 = this.projectDistance(v1a, v1b, normal);
+  const v2 = this.projectDistance(v2a, v2b, normal);
+
+  const h = Math.hypot(inner.x - outer.x, inner.y - outer.y);
+
+  return (v1 + v2) / (2 * h);
+}
+
   blinkCount = 0;
   eyeClosed = false;
   lastFaceSeenAt = Date.now();
@@ -251,10 +310,16 @@ export class App {
   }
 
   calculateBothEyesEAR(landmarks: any[]) {
-    const leftEAR = this.calculateEyeEAR(landmarks, 'left');
-    const rightEAR = this.calculateEyeEAR(landmarks, 'right');
+    // const leftEAR = this.calculateEyeEAR(landmarks, 'left');
+    // const rightEAR = this.calculateEyeEAR(landmarks, 'right');
 
-    return (leftEAR + rightEAR) / 2;
+    // return (leftEAR + rightEAR) / 2;
+
+    const leftEAR = this.calculateEyeEARPortraitSafe(landmarks, 'left');
+    const rightEAR = this.calculateEyeEARPortraitSafe(landmarks, 'right');
+    const ear = (leftEAR + rightEAR) / 2;
+
+    return ear
   }
 
   distance(a: any, b: any) {
