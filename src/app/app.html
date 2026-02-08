@@ -58,7 +58,7 @@
     @if (type === 'text') {
       <div>
         <textarea
-        class="w-100 rounded-2xl p-2 outline-0 border border-gray-500"
+        class="w-full rounded-2xl p-2 outline-0 border border-gray-500"
         rows="5"
         [(ngModel)]="textInput"
         placeholder="Masukkan teks...">
@@ -81,14 +81,14 @@
       </div>
     } @else if (type === 'speech') {
       <textarea
-        class="w-100 rounded-2xl p-2 outline-0 border border-gray-500"
+        class="w-full rounded-2xl p-2 outline-0 border border-gray-500"
         rows="6"
         [value]="transcript()"
         readonly
       ></textarea>
     } @else if (type === 'record') {
       <textarea
-        class="w-100 rounded-2xl p-2 outline-0 border border-gray-500"
+        class="w-full rounded-2xl p-2 outline-0 border border-gray-500"
         rows="6"
         [value]="transcript()"
         readonly
