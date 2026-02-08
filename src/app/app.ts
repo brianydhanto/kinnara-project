@@ -135,8 +135,8 @@ export class App {
       onFrame: async () => {
         await faceMesh.send({ image: this.videoRef.nativeElement });
       },
-      width: 1280,
-      height: 720,
+      width: 1920,
+      height: 1080,
     });
 
     camera.start();
@@ -248,11 +248,11 @@ export class App {
         ctx,
         landmarks,
         FACEMESH_TESSELATION,
-        { color: '#00FF00', lineWidth: 1 }
+        { color: '#ffffff', lineWidth: 1 }
       );
 
       drawLandmarks(ctx, landmarks, {
-        color: '#FF0000',
+        color: '#00ff00',
         radius: 1
       });
 
