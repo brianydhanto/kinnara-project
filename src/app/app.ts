@@ -103,6 +103,7 @@ export class App {
       refineLandmarks: true,
       minDetectionConfidence: 0.7,
       minTrackingConfidence: 0.7,
+      cameraVerticalFovDegrees: 63
     });
 
     faceMesh.onResults((results) => this.onResults(results));
