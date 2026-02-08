@@ -171,11 +171,11 @@ export class App {
 
       const ear = this.calculateBothEyesEAR(landmarks);
 
-      if (ear < 0.20 && !this.eyeClosed) {
+      if (ear < 0.23 && !this.eyeClosed) {
         this.eyeClosed = true;
       }
 
-      if (ear > 0.25 && this.eyeClosed) {
+      if (ear > 0.28 && this.eyeClosed) {
         this.blinkCount++;
         this.eyeClosed = false;
 
