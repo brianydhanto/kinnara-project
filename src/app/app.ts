@@ -177,13 +177,13 @@ export class App {
 
       let landmarks = results.multiFaceLandmarks[0];
 
-      if (this.isIOS && this.isPortrait()) {
-        landmarks = this.rotateLandmarksToPortrait(
-          landmarks,
-          results.image.width,
-          results.image.height
-        );
-      }
+      // if (this.isIOS && this.isPortrait()) {
+      //   landmarks = this.rotateLandmarksToPortrait(
+      //     landmarks,
+      //     results.image.width,
+      //     results.image.height
+      //   );
+      // }
 
       drawConnectors(
         ctx,
