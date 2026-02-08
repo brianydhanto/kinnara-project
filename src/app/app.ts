@@ -206,7 +206,10 @@ export class App {
   lastFaceSeenAt = Date.now();
   faceLostTimeout = 1500; 
   isFaceVisible = signal(true);
-  eyeResult = signal<any>(0)
+  eyeResult = signal<any>(0);
+  YAW_THRESHOLD = 0.12;
+  headLeft = false;
+  headeRight = false;
   onResults(results: any) {
       // if (!results.multiFaceLandmarks) return;
       if (!this.videoRef || !this.canvasRef) return;
@@ -244,6 +247,9 @@ export class App {
       //   );
       // }
 
+      ctx.save();
+      this.mirrorCanvas(ctx);
+
       drawConnectors(
         ctx,
         landmarks,
@@ -256,30 +262,55 @@ export class App {
         radius: 1
       });
 
-      ctx.save();
-      this.mirrorCanvas(ctx);
+      
       
       ctx.restore();
 
-      const ear = this.calculateBothEyesEAR(landmarks);
-      if (ear < 0.23 && !this.eyeClosed) {
-        this.eyeClosed = true;
-        this.eyeResult.set(ear)
+      //VALIDASI NENGOK KANAN KIRI
+      const nose = landmarks[1];
+      const leftCheek = landmarks[234];
+      const rightCheek = landmarks[454];
 
+      const faceWidth = Math.abs(rightCheek.x - leftCheek.x);
+      const faceCenterX = leftCheek.x + faceWidth / 2;
+
+      const yaw = (nose.x - faceCenterX) / faceWidth;
+
+      if (yaw > this.YAW_THRESHOLD) {
+        this.headLeft = true;
+        console.log('KIRI')
+      }
+      
+      if (yaw < -this.YAW_THRESHOLD) {
+        this.headeRight = true;
+        console.log('KANAN')
       }
 
-      if (ear > 0.28 && this.eyeClosed) {
-        this.blinkCount++;
-        this.eyeClosed = false;
-        this.eyeResult.set(ear)
-
-
-        if (this.blinkCount > 1) {
-          this.eyeResult.set(ear)
+      if (this.headLeft && this.headeRight) {
           this.passed.set(true);
-          this.takePhoto();
-        }
+          // this.takePhoto();
       }
+
+      // VALIDASI KEDPIPIN MATA
+      // const ear = this.calculateBothEyesEAR(landmarks);
+      // if (ear < 0.23 && !this.eyeClosed) {
+      //   this.eyeClosed = true;F
+      //   this.eyeResult.set(ear)
+
+      // }
+
+      // if (ear > 0.28 && this.eyeClosed) {
+      //   this.blinkCount++;
+      //   this.eyeClosed = false;
+      //   this.eyeResult.set(ear)
+
+
+      //   if (this.blinkCount > 1) {
+      //     this.eyeResult.set(ear)
+      //     this.passed.set(true);
+      //     this.takePhoto();
+      //   }
+      // }
     }
   
   // Mengukur reaksi kedipan mata kanan - kiri
