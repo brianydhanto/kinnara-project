@@ -127,6 +127,7 @@ export class App {
       minDetectionConfidence: 0.7,
       minTrackingConfidence: 0.7,
       cameraVerticalFovDegrees: 63,
+      selfieMode: true,
     });
 
     faceMesh.onResults((results) => this.onResults(results));
