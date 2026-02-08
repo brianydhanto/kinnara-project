@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, signal, ViewChild, WritableSignal } from '@angular/core';
+import { Component, ElementRef, HostListener, signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
 import { Camera } from '@mediapipe/camera_utils';
@@ -75,6 +75,23 @@ export class App {
     this.passed = signal(false)
   }
 
+  @HostListener('window:resize')
+  onResize() {
+    this.syncCanvasSize();
+  }
+
+  ngAfterViewInit() {
+    window.addEventListener('resize', () => {
+      this.syncCanvasSize();
+    });
+  }
+
+  mirrorCanvas(ctx: CanvasRenderingContext2D) {
+    const canvas = this.canvasRef.nativeElement;
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+  }
+
   initCamera() {
     const faceMesh = new FaceMesh({
       locateFile: (file) =>
@@ -108,9 +125,12 @@ export class App {
   isFaceVisible = signal(true);
   onResults(results: any) {
       // if (!results.multiFaceLandmarks) return;
+      if (!this.videoRef || !this.canvasRef) return;
 
       const canvas = this.canvasRef.nativeElement;
       const ctx = canvas.getContext('2d')!;
+
+      //  this.syncCanvasSize();
 
       canvas.width = results.image.width;
       canvas.height = results.image.height;
@@ -119,7 +139,6 @@ export class App {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
-        // wajah tidak terdeteksi
         if (Date.now() - this.lastFaceSeenAt > this.faceLostTimeout) {
           this.isFaceVisible.set(false);
         }
@@ -145,11 +164,14 @@ export class App {
         radius: 1
       });
 
+      ctx.save();
+      this.mirrorCanvas(ctx);
+      
       ctx.restore();
 
-      const ear = this.calculateEAR(landmarks);
+      const ear = this.calculateBothEyesEAR(landmarks);
 
-      if (ear < 0.2 && !this.eyeClosed) {
+      if (ear < 0.20 && !this.eyeClosed) {
         this.eyeClosed = true;
       }
 
@@ -163,18 +185,39 @@ export class App {
         }
       }
     }
+  
+  // Mengukur reaksi kedipan mata kanan - kiri
+  calculateEyeEAR(
+    landmarks: any[],
+    eye: 'left' | 'right'
+  ) {
+    let vertical: number;
+    let horizontal: number;
 
-  calculateEAR(landmarks: any[]) {
-    const vertical =
-      this.distance(landmarks[160], landmarks[144]) +
-      this.distance(landmarks[158], landmarks[153]);
+    if (eye === 'left') {
+      vertical =
+        this.distance(landmarks[160], landmarks[144]) +
+        this.distance(landmarks[158], landmarks[153]);
 
-    const horizontal = this.distance(
-      landmarks[33],
-      landmarks[133]
-    );
+      horizontal =
+        this.distance(landmarks[33], landmarks[133]);
+    } else {
+      vertical =
+        this.distance(landmarks[385], landmarks[380]) +
+        this.distance(landmarks[387], landmarks[373]);
+
+      horizontal =
+        this.distance(landmarks[362], landmarks[263]);
+    }
 
     return vertical / (2.0 * horizontal);
+  }
+
+  calculateBothEyesEAR(landmarks: any[]) {
+    const leftEAR = this.calculateEyeEAR(landmarks, 'left');
+    const rightEAR = this.calculateEyeEAR(landmarks, 'right');
+
+    return (leftEAR + rightEAR) / 2;
   }
 
   distance(a: any, b: any) {
@@ -278,6 +321,7 @@ export class App {
       }
 
       const utterance = new SpeechSynthesisUtterance(text)
+      const voices = window.speechSynthesis.getVoices();
       utterance.lang = 'id-ID'
       utterance.onstart = () => {
         this.isPlay.set(true)
@@ -360,6 +404,26 @@ export class App {
 
   onResetTranscript() {
     this.transcript.set("");
+    this.stopRecording();
+  }
+
+  syncCanvasSize() {
+    const video = this.videoRef.nativeElement;
+    const canvas = this.canvasRef.nativeElement;
+
+    const rect = video.getBoundingClientRect();
+
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+  }
+
+  drawLandmarksResponsive(ctx: CanvasRenderingContext2D, landmarks: any[]) {
+    const canvas = this.canvasRef.nativeElement;
+
+    drawLandmarks(ctx, landmarks, {
+      color: '#FF0000',
+      radius: (data) => 1.5,
+    });
   }
   
 }

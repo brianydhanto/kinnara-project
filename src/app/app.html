@@ -1,7 +1,7 @@
 <main class="main">
   <div class="content">
     <h1>{{ title() }}</h1>
-    <div class="form-container">
+    <div class="form-container flex gap-2 flex-col md:flex-row">
       <label>
         <input
           type="radio"
@@ -28,7 +28,6 @@
           name="source"
           value="speech"
           [(ngModel)]="type"
-          (ngModelChange)="initCamera()"
           (click)="onResetTranscript()"
         />
         Speech to text
@@ -88,7 +87,6 @@
         readonly
       ></textarea>
     } @else if (type === 'record') {
-      <!-- <video #video autoplay playsinline></video> -->
       <textarea
         class="w-100 rounded-2xl p-2 outline-0 border border-gray-500"
         rows="6"
@@ -99,9 +97,6 @@
         <div class="py-4">
           <audio [src]="audioUrl()" controls></audio>
         </div>
-        <!-- <div class="py-4">
-          <video [src]="audioUrl()" controls></video>
-        </div> -->
       }
     } @else if (type === 'detection') {
       <div class="camera-wrapper">
@@ -117,20 +112,19 @@
     }
 
     @if (type === 'text' || type === 'document') {
-      <div>
+      <div class="py-1">
         <button (click)="onSpeak(type)" [disabled]="isPlay()" class="{{ isPlay() ? 'bg-gray-400' : 'bg-blue-400'}} text-white p-2 rounded-sm cursor-pointer">Speak</button>
         <button (click)="onStop()" [disabled]="!isPlay()" class="{{ isPlay() ? 'bg-red-400' : 'bg-gray-400'}} text-white p-2 ml-4 rounded-sm cursor-pointer">Stop</button>
       </div>
     } @else if (type === 'speech') {
-      <div>
+      <div class="py-1">
         <button (click)="onSpeak(type)" [disabled]="isPlay()" class="{{ isPlay() ? 'bg-gray-400' : 'bg-blue-400'}} text-white p-2 rounded-sm cursor-pointer">Speak</button>
         <button (click)="onStop()" [disabled]="!isComplete()" class="{{ isComplete() ? 'bg-green-400' : 'bg-gray-400'}} text-white p-2 ml-4 rounded-sm cursor-pointer">Complete</button>
       </div>
     } @else if (type === 'record') {
-      <div>
+      <div class="py-1">
         <button (click)="startRecording()" [disabled]="isPlay()" class="{{ isPlay() ? 'bg-gray-400' : 'bg-blue-400'}} text-white p-2 rounded-sm cursor-pointer">Start</button>
         <button (click)="stopRecording()"  class="bg-green-400 text-white p-2 ml-4 rounded-sm cursor-pointer">Complete</button>
-        <!-- <button (click)="convert()" class="bg-green-400 text-white p-2 ml-4 rounded-sm cursor-pointer">Convert</button> -->
       </div>
     }
   </div>
