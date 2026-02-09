@@ -301,7 +301,7 @@ export class App {
           this.eyeClosed = true;
         }
 
-        if (ear > 0.09 && this.eyeClosed) {
+        if (ear > 0.07 && this.eyeClosed) {
           this.blinkCount++;
           this.eyeClosed = false;
 
