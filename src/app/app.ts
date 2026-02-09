@@ -251,17 +251,17 @@ export class App {
       ctx.save();
       this.mirrorCanvas(ctx);
 
-      drawConnectors(
-        ctx,
-        landmarks,
-        FACEMESH_TESSELATION,
-        { color: '#ffffff', lineWidth: 1 }
-      );
+      // drawConnectors(
+      //   ctx,
+      //   landmarks,
+      //   FACEMESH_TESSELATION,
+      //   { color: '#ffffff', lineWidth: 1 }
+      // );
 
-      drawLandmarks(ctx, landmarks, {
-        color: '#00ff00',
-        radius: 1
-      });
+      // drawLandmarks(ctx, landmarks, {
+      //   color: '#00ff00',
+      //   radius: 1
+      // });
 
       
       
@@ -580,7 +580,7 @@ export class App {
   drawLandmarksResponsive(ctx: CanvasRenderingContext2D, landmarks: any[]) {
     const canvas = this.canvasRef.nativeElement;
 
-    drawLandmarks(ctx, landmarks, {
+  drawLandmarks(ctx, landmarks, {
       color: '#FF0000',
       radius: (data) => 1.5,
     });

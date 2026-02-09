@@ -99,17 +99,21 @@
         </div>
       }
     } @else if (type === 'detection') {
-      <div class="camera-wrapper">
-        <video #video autoplay playsinline></video>
-        <canvas #canvas></canvas>
+      <div class="camera-wrapper mx-auto">
+        <video #video autoplay playsinline class="sm:w-full md:w-[640px] mx-auto"></video>
+        <canvas #canvas class="sm:w-full md:w-[640px] mx-auto"></canvas>
       </div>
-
-      <p>{{ eyeResult() }}</p>
-      @if (!passed()) {
-        <p>Mohon kedipkan mata 2x</p>
-      } @else {
-        <p>Liveness berhasil</p>
-      }
+      <div class="w-full flex justify-center">
+        <div>
+          <!-- <p>{{ eyeResult() }}</p> -->
+          @if (!passed()) {
+            <h2>Mohon kedipkan mata 2x</h2>
+          } @else {
+            <h2>Validasi berhasil</h2>
+          }
+        </div>
+      </div>
+      
     }
 
     @if (type === 'text' || type === 'document') {
