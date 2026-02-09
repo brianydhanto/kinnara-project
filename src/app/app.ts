@@ -211,6 +211,7 @@ export class App {
   YAW_THRESHOLD = 0.12;
   headLeft = false;
   headeRight = false;
+  device = signal("laptop")
   onResults(results: any) {
       // if (!results.multiFaceLandmarks) return;
       if (!this.videoRef || !this.canvasRef) return;
@@ -297,11 +298,12 @@ export class App {
       this.eyeResult.set(ear)
 
       if (this.isIOS && this.isPortrait()) {
+        this.device.set("Smartphone")
         if (ear < 0.06 && !this.eyeClosed) {
           this.eyeClosed = true;
         }
 
-        if (ear > 0.07 && this.eyeClosed) {
+        if (ear > 0.09 && this.eyeClosed) {
           this.blinkCount++;
           this.eyeClosed = false;
 
@@ -313,6 +315,7 @@ export class App {
         }
 
       } else {
+        this.device.set("Laptop")
         if (ear < 0.23 && !this.eyeClosed) {
           this.eyeClosed = true;
 
