@@ -99,17 +99,17 @@
         </div>
       }
     } @else if (type === 'detection') {
-      <div class="camera-wrapper mx-auto">
-        <video #video autoplay playsinline class="sm:w-full md:w-[640px] mx-auto"></video>
-        <canvas #canvas class="sm:w-full md:w-[640px] mx-auto"></canvas>
+      <div class="camera-wrapper mx-auto z-0">
+        <video #video autoplay playsinline class="mx-auto"></video>
+        <canvas #canvas class="mx-auto"></canvas>
       </div>
-      <div class="w-full flex justify-center">
+      <div class="z-100 w-full flex justify-center">
         <div>
           <!-- <p>{{ eyeResult() }}</p> -->
           @if (!passed()) {
-            <h2>Mohon kedipkan mata 2x</h2>
+            <h2 class="text-orange-400">Mohon kedipkan mata 2x</h2>
           } @else {
-            <h2>Validasi berhasil</h2>
+            <h2 class="text-green-400">Validasi berhasil</h2>
           }
         </div>
       </div>
