@@ -35,8 +35,8 @@ html {
   /* CSS rules to apply when the screen width is 600px or less */
   .camera-wrapper {
     position: relative;
-    width: 100%;
-    height: 100%;
+    width: 1280px;
+    height: 720px;
     /* max-width: 720px; */
     margin: auto;
     }
@@ -45,8 +45,8 @@ html {
     .camera-wrapper canvas {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
+    width: 1280px;
+    height: 720px;
     /* object-fit: cover;  */
     }
 }
