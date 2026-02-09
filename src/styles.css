@@ -17,19 +17,9 @@ html {
 .camera-wrapper {
   position: relative;
   width: 100%;
-  height: 50%;
+  height: 100%;
   /* max-width: 720px; */
   margin: auto;
-}
-
-@media screen and (max-width: 768px) {
-  .camera-wrapper {
-    position: relative;
-    width: 100%;
-    height: 30%;
-    /* max-width: 720px; */
-    margin: auto;
-    }
 }
 
 .camera-wrapper video,
