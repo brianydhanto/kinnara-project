@@ -92,8 +92,8 @@ export class App {
     ctx.scale(-1, 1);
   }
 
-  isIOS =
-    /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+  isMobile =
+  /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
   isPortrait() {
@@ -297,7 +297,7 @@ export class App {
       const ear = this.calculateBothEyesEAR(landmarks);
       this.eyeResult.set(ear)
 
-      if (this.isIOS && this.isPortrait()) {
+      if (this.isMobile && this.isPortrait()) {
         this.device.set("Smartphone")
         if (ear < 0.06 && !this.eyeClosed) {
           this.eyeClosed = true;
