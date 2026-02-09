@@ -14,10 +14,6 @@ html {
     padding: 0;
 }
 
-body {
-    overflow: hidden;
-}
-
 .camera-wrapper {
   position: relative;
   width: 100%;
