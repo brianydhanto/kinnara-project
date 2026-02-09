@@ -296,21 +296,41 @@ export class App {
       const ear = this.calculateBothEyesEAR(landmarks);
       this.eyeResult.set(ear)
 
-      if (ear < 0.23 && !this.eyeClosed) {
-        this.eyeClosed = true;
+      if (this.isIOS && this.isPortrait()) {
+        if (ear < 0.06 && !this.eyeClosed) {
+          this.eyeClosed = true;
+        }
 
-      }
-
-      if (ear > 0.28 && this.eyeClosed) {
-        this.blinkCount++;
-        this.eyeClosed = false;
+        if (ear > 0.09 && this.eyeClosed) {
+          this.blinkCount++;
+          this.eyeClosed = false;
 
 
-        if (this.blinkCount > 1) {
-          this.passed.set(true);
-          this.takePhoto();
+          if (this.blinkCount > 1) {
+            this.passed.set(true);
+            // this.takePhoto();
+          }
+        }
+
+      } else {
+        if (ear < 0.23 && !this.eyeClosed) {
+          this.eyeClosed = true;
+
+        }
+
+        if (ear > 0.28 && this.eyeClosed) {
+          this.blinkCount++;
+          this.eyeClosed = false;
+
+
+          if (this.blinkCount > 1) {
+            this.passed.set(true);
+            // this.takePhoto();
+          }
         }
       }
+
+      
     }
   
   // Mengukur reaksi kedipan mata kanan - kiri
