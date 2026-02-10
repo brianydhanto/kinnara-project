@@ -112,6 +112,18 @@ export class App implements OnInit {
     this.faceMesh = new FaceMesh({
       locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
     });
+    this.faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.7,
+      minTrackingConfidence: 0.7,
+      cameraVerticalFovDegrees: 63,
+      selfieMode: true,
+    });
+
+    this.faceMesh.onResults((results: any) => this.onResults(results));
+
+    
   }
 
   mirrorCanvas(ctx: CanvasRenderingContext2D) {
@@ -180,16 +192,16 @@ export class App implements OnInit {
     
 
 
-    this.faceMesh.setOptions({
-      maxNumFaces: 1,
-      refineLandmarks: true,
-      minDetectionConfidence: 0.7,
-      minTrackingConfidence: 0.7,
-      cameraVerticalFovDegrees: 63,
-      selfieMode: true,
-    });
+    // this.faceMesh.setOptions({
+    //   maxNumFaces: 1,
+    //   refineLandmarks: true,
+    //   minDetectionConfidence: 0.7,
+    //   minTrackingConfidence: 0.7,
+    //   cameraVerticalFovDegrees: 63,
+    //   selfieMode: true,
+    // });
 
-    this.faceMesh.onResults((results: any) => this.onResults(results));
+    // this.faceMesh.onResults((results: any) => this.onResults(results));
 
     this.camera = new Camera(this.videoRef.nativeElement, {
       onFrame: async () => {
