@@ -86,13 +86,13 @@ export class App implements OnInit {
       // const faceMesh: any = localStorage.getItem('faceMesh');
       // this.faceMesh = JSON.parse(faceMesh);
       // await this.preloadFaceMesh();
-      if (this.camera) {
-        this.camera.stop();
-      }
+      // if (this.camera) {
+      //   this.camera.stop();
+      // }
 
-      if (this.faceMesh) {
-        this.faceMesh.close();
-      }
+      // if (this.faceMesh) {
+      //   this.faceMesh.close();
+      // }
     });
   }
 
