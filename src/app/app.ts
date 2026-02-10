@@ -66,15 +66,7 @@ export class App {
   online$ = new BehaviorSubject<boolean>(navigator.onLine);
   
   constructor(private http: HttpClient, private toastr: ToastrService) {
-    this.faceMesh = new FaceMesh({
-      locateFile: (file) => {
-        const url = `/assets/mediapipe/face_mesh/${file}`;
-        return url;
-      }
-    });
-
-    localStorage.setItem('faceMesh', JSON.stringify(this.faceMesh))
-
+    
     this.type = "text"
     this.textInput = ""
     this.documentText = ""
@@ -84,9 +76,16 @@ export class App {
     this.isRecording = signal(false)
     this.audioUrl = signal(null)
     this.passed = signal(false)
-    window.addEventListener('online', () => this.toastr.success("Anda dalam keadaan online", "Online"));
-    window.addEventListener('offline', () => {
-      this.toastr.error("Anda dalam keadaan offline", "Offline");
+    window.addEventListener('online', () => {
+      this.toastr.success("Anda dalam keadaan online", "Online");
+      if (this.type === 'detection') {
+        // this.initCamera()
+      }
+    });
+    window.addEventListener('offline', async () => {
+      await this.toastr.error("Anda dalam keadaan offline", "Offline");
+      await this.preloadFaceMesh();
+      await this.initCamera();
       // const faceMesh: any = localStorage.getItem('faceMesh');
       // this.faceMesh = JSON.parse(faceMesh);
     });
@@ -117,6 +116,27 @@ export class App {
     return window.innerHeight > window.innerWidth;
   }
 
+  async preloadFaceMesh() {
+    const files = [
+      'face_mesh_solution_packed_assets_loader.js',
+      'face_mesh_solution_packed_assets.data',
+      'face_mesh_solution_simd_wasm_bin.js',
+      'face_mesh_solution_simd_wasm_bin.wasm',
+      'face_mesh.binarypb'
+    ];
+
+    for (const f of files) {
+      try {
+        const res = await fetch(`/assets/mediapipe/face_mesh/${f}`, {
+          cache: 'reload'
+        });
+        console.log(f, res.status);
+      } catch (err) {
+        console.error('FAILED', f, err);
+      }
+    }
+  }
+
   rotateLandmarksToPortrait(
     landmarks: any[],
     imageWidth: number,
@@ -145,12 +165,9 @@ export class App {
     //     `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     // });
 
-    // const faceMesh = new FaceMesh({
-    //   locateFile: (file) => {
-    //     const url = `${file}`;
-    //     return url;
-    //   }
-    // });
+    const faceMesh = new FaceMesh({
+      locateFile: (file) => `/assets/mediapipe/face_mesh/${file}`,
+    });
 
 
     this.faceMesh.setOptions({
