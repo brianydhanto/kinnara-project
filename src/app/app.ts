@@ -109,6 +109,9 @@ export class App implements OnInit {
 
   async ngOnInit() {
     await this.preloadFaceMesh();
+    this.faceMesh = new FaceMesh({
+      locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
+    });
   }
 
   mirrorCanvas(ctx: CanvasRenderingContext2D) {
@@ -174,9 +177,7 @@ export class App implements OnInit {
     //     `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     // });
 
-    this.faceMesh = new FaceMesh({
-      locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
-    });
+    
 
 
     this.faceMesh.setOptions({
