@@ -15,6 +15,7 @@ import {
   FACEMESH_RIGHT_EYE,
   FACEMESH_LEFT_EYE
 } from '@mediapipe/face_mesh';
+import { ToastrService } from 'ngx-toastr';
 
 declare global {
   interface Window {
@@ -62,8 +63,9 @@ export class App {
   audioUrl: WritableSignal<string | null>
   isRecording: WritableSignal<boolean>;
   passed: WritableSignal<boolean>;
+  online$ = new BehaviorSubject<boolean>(navigator.onLine);
   
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private toastr: ToastrService) {
     this.type = "text"
     this.textInput = ""
     this.documentText = ""
@@ -73,18 +75,20 @@ export class App {
     this.isRecording = signal(false)
     this.audioUrl = signal(null)
     this.passed = signal(false)
+    window.addEventListener('online', () => this.toastr.success("Anda dalam keadaan online", "Online"));
+    window.addEventListener('offline', () => this.toastr.error("Anda dalam keadaan offline", "Offline"));
   }
 
-  @HostListener('window:resize')
-  onResize() {
-    this.syncCanvasSize();
-  }
+  // @HostListener('window:resize')
+  // onResize() {
+  //   this.syncCanvasSize();
+  // }
 
-  ngAfterViewInit() {
-    window.addEventListener('resize', () => {
-      this.syncCanvasSize();
-    });
-  }
+  // ngAfterViewInit() {
+  //   window.addEventListener('resize', () => {
+  //     this.syncCanvasSize();
+  //   });
+  // }
 
   mirrorCanvas(ctx: CanvasRenderingContext2D) {
     const canvas = this.canvasRef.nativeElement;
@@ -115,11 +119,25 @@ export class App {
     });
   }
 
+  onResetDevice() {
+    this.onStop()
+    this.stopRecording()
+  }
+
+  camera: any;
   initCamera() {
+    // const faceMesh = new FaceMesh({
+    //   locateFile: (file) =>
+    //     `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+    // });
+
     const faceMesh = new FaceMesh({
-      locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+      locateFile: (file) => {
+        const url = `${file}`;
+        return url;
+      }
     });
+
 
     faceMesh.setOptions({
       maxNumFaces: 1,
@@ -132,7 +150,7 @@ export class App {
 
     faceMesh.onResults((results) => this.onResults(results));
 
-    const camera = new Camera(this.videoRef.nativeElement, {
+    this.camera = new Camera(this.videoRef.nativeElement, {
       onFrame: async () => {
         await faceMesh.send({ image: this.videoRef.nativeElement });
       },
@@ -140,7 +158,7 @@ export class App {
       height: 720,
     });
 
-    camera.start();
+    this.camera.start();
   }
 
   getEyeAxis(a: any, b: any) {
@@ -310,6 +328,7 @@ export class App {
 
           if (this.blinkCount > 1) {
             this.passed.set(true);
+            // this.toastr.success("Validasi berhasil", "Success")
             // this.takePhoto();
           }
         }
@@ -416,7 +435,7 @@ export class App {
     window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert('Browser tidak mendukung Speech Recognition');
+      this.toastr.info("Browser tidak mendukung untuk melakukan speech", "Warning")
       return;
     }
 
@@ -479,7 +498,7 @@ export class App {
           : this.documentText
 
       if (!text) {
-        alert('Teks masih kosong');
+        this.toastr.warning("Teks masih kosong", "Warning")
         return;
       }
 
@@ -501,7 +520,9 @@ export class App {
 
   onStop() {
     speechSynthesis.cancel()
-    this.recognition.stop()
+    if (this.recognition) {
+      this.recognition.stop()
+    }
     this.isPlay.set(false)
     this.isComplete.set(false)
   }
@@ -540,33 +561,118 @@ export class App {
         this.audioChunks.push(event.data)
       };
 
-      this.mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(this.audioChunks, { type: this.mediaRecorder.mimeType })
-        const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
-        this.file = new File([blob], 'audio.webm', { type: 'audio/webm' });
-        this.audioUrl.set(URL.createObjectURL(audioBlob))
+      this.mediaRecorder.onstop = async () => {
+        const audioBlob = await new Blob(this.audioChunks, { type: this.mediaRecorder.mimeType })
+        const blob = await new Blob(this.audioChunks, { type: 'audio/webm' });
+        this.file = await new File([blob], 'audio.webm', { type: 'audio/webm' });
+
+        await this.saveRecording(blob);
+        
+        await this.audioUrl.set(URL.createObjectURL(audioBlob))
       };
 
       this.mediaRecorder.start()
-      this.onSpeech()
+      this.onSpeechRecording()
       this.isRecording.set(true)
+      this.isPaused.set(false);
       
     } catch (err) {
       console.error('Cannot access microphone:', err);
     }
   }
 
+  onSpeechRecording() {
+    const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      this.toastr.info("Browser tidak mendukung untuk melakukan speech", "Warning")
+      return;
+    }
+
+    this.recognition = new SpeechRecognition();
+    this.recognition.lang = 'id-ID';
+    this.recognition.continuous = true;
+    this.recognition.interimResults = true;
+
+    this.recognition.onstart = () => {
+      // this.isPlay.set(true)
+    };
+
+    this.recognition.onresult = (event: any) => {
+      // this.onUserSpeakingAgain();
+      let finalText = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        finalText += event.results[i][0].transcript;
+      }
+
+      this.transcript.set(finalText)
+      this.transcrip.next(finalText)
+      if (finalText.toLocaleLowerCase().includes("ngerti") || finalText.toLocaleLowerCase().includes("mengerti")) {
+        // this.startSilenceCountdown();
+      }
+    };
+
+    this.recognition.onerror = () => {
+      // this.isPlay.set(false)
+    };
+
+    this.recognition.onend = () => {
+      // this.isPlay.set(false)
+    };
+
+    this.recognition.start();
+
+  }
+
   stopRecording() {
     if (this.mediaRecorder) {
-      this.mediaRecorder.stop();
+      if (this.mediaRecorder.state !== 'inactive') {
+        this.mediaRecorder.stop();
+      }
+
       this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
       this.onStop();
-      this.isRecording.set(false)
+
+      this.isRecording.set(false);
+      this.isPaused.set(false);
+
+    }
+  }
+
+  isPaused: WritableSignal<boolean> = signal(false);
+  onPauseRecording() {
+    if (!this.mediaRecorder) return;
+
+    if (this.mediaRecorder.state === 'recording') {
+      this.mediaRecorder.pause();
+      this.isPaused.set(true);
+
+      if (this.recognition) {
+        this.recognition.stop();
+      }
+    }
+  }
+
+  isResume: WritableSignal<boolean> = signal(true);
+  onResumeRecording() {
+    if (!this.mediaRecorder) return;
+
+
+    if (this.mediaRecorder.state === 'paused') {
+      this.mediaRecorder.resume();
+      this.isPaused.set(false);
+      
+
+      this.onSpeechRecording();
     }
   }
 
   onResetTranscript() {
+    this.audioChunks = [];
     this.transcript.set("");
+    this.audioUrl.set("");
     this.stopRecording();
   }
 
@@ -586,6 +692,65 @@ export class App {
   drawLandmarks(ctx, landmarks, {
       color: '#FF0000',
       radius: (data) => 1.5,
+    });
+  }
+
+
+  // INDEXED DB
+  openDB(): Promise<IDBDatabase> {
+    return new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('recordings-db', 1);
+
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains('records')) {
+          db.createObjectStore('records', { keyPath: 'id' });
+        }
+      };
+
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async saveRecording(blob: Blob) {
+    const db = await this.openDB();
+
+    const tx = db.transaction('records', 'readwrite');
+    const store = tx.objectStore('records');
+
+    const data = {
+      id: crypto.randomUUID(),
+      type: blob.type.startsWith('video') ? 'video' : 'audio',
+      blob,
+      transcript: this.transcript(),
+      createdAt: Date.now(),
+      uploaded: false,
+    };
+
+    store.add(data);
+
+    return new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => {
+        resolve()
+        this.toastr.success('Audio berhasil tersimpan di browser storage', 'Success');
+      }
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async getAllRecordings() {
+    const db = await this.openDB();
+
+    const tx = db.transaction('records', 'readonly');
+    const store = tx.objectStore('records');
+
+    return new Promise<any[]>((resolve) => {
+      const req = store.getAll();
+      req.onsuccess = () => resolve(req.result);
     });
   }
   
