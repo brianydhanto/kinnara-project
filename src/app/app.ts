@@ -67,10 +67,8 @@ export class App {
   
   constructor(private http: HttpClient, private toastr: ToastrService) {
     this.faceMesh = new FaceMesh({
-      locateFile: (file) => {
-        const url = `${file}`;
-        return url;
-      }
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     });
 
     localStorage.setItem('faceMesh', JSON.stringify(this.faceMesh))
