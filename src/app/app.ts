@@ -81,10 +81,11 @@ export class App {
       window.location.reload();
       
     });
-    window.addEventListener('offline', () => {
+    window.addEventListener('offline', async () => {
       this.toastr.error("Anda dalam keadaan offline", "Offline");
       // const faceMesh: any = localStorage.getItem('faceMesh');
       // this.faceMesh = JSON.parse(faceMesh);
+      await this.preloadFaceMesh();
       if (this.camera) {
         this.camera.stop();
       }
