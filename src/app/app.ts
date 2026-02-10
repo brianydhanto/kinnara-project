@@ -78,7 +78,7 @@ export class App {
     this.passed = signal(false)
     window.addEventListener('online', () => {
       this.toastr.success("Anda dalam keadaan online", "Online");
-      window.location.reload();
+      // window.location.reload();
       
     });
     window.addEventListener('offline', async () => {
@@ -132,7 +132,7 @@ export class App {
 
     for (const f of files) {
       try {
-        const res = await fetch(`/assets/mediapipe/face_mesh/${f}`, {
+        const res = await fetch(`assets/mediapipe/face_mesh/${f}`, {
           cache: 'reload'
         });
         console.log(f, res.status);
