@@ -85,7 +85,7 @@ export class App implements OnInit {
       this.toastr.error("Anda dalam keadaan offline", "Offline");
       // const faceMesh: any = localStorage.getItem('faceMesh');
       // this.faceMesh = JSON.parse(faceMesh);
-      await this.preloadFaceMesh();
+      // await this.preloadFaceMesh();
       if (this.camera) {
         this.camera.stop();
       }
@@ -169,14 +169,14 @@ export class App implements OnInit {
   camera: any;
   faceMesh: any;
   initCamera() {
-    this.faceMesh = new FaceMesh({
-      locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
-    });
-
     // this.faceMesh = new FaceMesh({
-    //   locateFile: (file) => `/assets/mediapipe/face_mesh/${file}`,
+    //   locateFile: (file) =>
+    //     `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     // });
+
+    this.faceMesh = new FaceMesh({
+      locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
+    });
 
 
     this.faceMesh.setOptions({
