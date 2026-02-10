@@ -79,7 +79,7 @@ export class App {
     window.addEventListener('online', () => {
       this.toastr.success("Anda dalam keadaan online", "Online");
       if (this.type === 'detection') {
-        // this.initCamera()
+        this.initCamera()
       }
     });
     window.addEventListener('offline', async () => {
@@ -160,14 +160,14 @@ export class App {
   camera: any;
   faceMesh: any;
   initCamera() {
-    // const faceMesh = new FaceMesh({
-    //   locateFile: (file) =>
-    //     `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
-    // });
-
-    const faceMesh = new FaceMesh({
-      locateFile: (file) => `/assets/mediapipe/face_mesh/${file}`,
+    this.faceMesh = new FaceMesh({
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     });
+
+    // this.faceMesh = new FaceMesh({
+    //   locateFile: (file) => `/assets/mediapipe/face_mesh/${file}`,
+    // });
 
 
     this.faceMesh.setOptions({
