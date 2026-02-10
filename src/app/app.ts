@@ -108,24 +108,24 @@ export class App implements OnInit {
   // }
 
   async ngOnInit() {
-    await this.preloadFaceMesh();
-    this.faceMesh = new FaceMesh({
-      locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
-    });
+    // await this.preloadFaceMesh();
+    // this.faceMesh = new FaceMesh({
+    //   locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
+    // });
     // this.faceMesh = new FaceMesh({
     //   locateFile: (file) =>
     //     `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     // });
-    this.faceMesh.setOptions({
-      maxNumFaces: 1,
-      refineLandmarks: true,
-      minDetectionConfidence: 0.7,
-      minTrackingConfidence: 0.7,
-      cameraVerticalFovDegrees: 63,
-      selfieMode: true,
-    });
+    // this.faceMesh.setOptions({
+    //   maxNumFaces: 1,
+    //   refineLandmarks: true,
+    //   minDetectionConfidence: 0.7,
+    //   minTrackingConfidence: 0.7,
+    //   cameraVerticalFovDegrees: 63,
+    //   selfieMode: true,
+    // });
 
-    this.faceMesh.onResults((results: any) => this.onResults(results));
+    // this.faceMesh.onResults((results: any) => this.onResults(results));
 
     
   }
@@ -188,24 +188,24 @@ export class App implements OnInit {
   camera: any;
   faceMesh: any;
   initCamera() {
-    // this.faceMesh = new FaceMesh({
-    //   locateFile: (file) =>
-    //     `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
-    // });
+    this.faceMesh = new FaceMesh({
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+    });
 
     
 
 
-    // this.faceMesh.setOptions({
-    //   maxNumFaces: 1,
-    //   refineLandmarks: true,
-    //   minDetectionConfidence: 0.7,
-    //   minTrackingConfidence: 0.7,
-    //   cameraVerticalFovDegrees: 63,
-    //   selfieMode: true,
-    // });
+    this.faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.7,
+      minTrackingConfidence: 0.7,
+      cameraVerticalFovDegrees: 63,
+      selfieMode: true,
+    });
 
-    // this.faceMesh.onResults((results: any) => this.onResults(results));
+    this.faceMesh.onResults((results: any) => this.onResults(results));
 
     this.camera = new Camera(this.videoRef.nativeElement, {
       onFrame: async () => {
