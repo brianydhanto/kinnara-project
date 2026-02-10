@@ -108,14 +108,14 @@ export class App implements OnInit {
   // }
 
   async ngOnInit() {
-    // await this.preloadFaceMesh();
-    // this.faceMesh = new FaceMesh({
-    //   locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
-    // });
+    await this.preloadFaceMesh();
     this.faceMesh = new FaceMesh({
-      locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+      locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
     });
+    // this.faceMesh = new FaceMesh({
+    //   locateFile: (file) =>
+    //     `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+    // });
     this.faceMesh.setOptions({
       maxNumFaces: 1,
       refineLandmarks: true,
