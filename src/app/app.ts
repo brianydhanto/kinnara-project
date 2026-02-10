@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, HostListener, signal, ViewChild, WritableSignal } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
 import { Camera } from '@mediapipe/camera_utils';
@@ -29,7 +29,7 @@ declare global {
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
+export class App implements OnInit {
   
   protected readonly title = signal('mirecord-poc');
   @ViewChild('video')
@@ -106,6 +106,10 @@ export class App {
   //     this.syncCanvasSize();
   //   });
   // }
+
+  async ngOnInit() {
+    await this.preloadFaceMesh();
+  }
 
   mirrorCanvas(ctx: CanvasRenderingContext2D) {
     const canvas = this.canvasRef.nativeElement;
