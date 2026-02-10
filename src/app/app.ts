@@ -71,6 +71,8 @@ export class App {
         `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     });
 
+    console.log(this.faceMesh, 1)
+
     localStorage.setItem('faceMesh', JSON.stringify(this.faceMesh))
 
     this.type = "text"
@@ -86,7 +88,8 @@ export class App {
     window.addEventListener('offline', () => {
       this.toastr.error("Anda dalam keadaan offline", "Offline");
       const faceMesh: any = localStorage.getItem('faceMesh');
-      this.faceMesh = JSON.parse(faceMesh);
+      this.faceMesh = new FaceMesh(JSON.parse(faceMesh));
+      console.log(this.faceMesh, 2)
     });
   }
 
