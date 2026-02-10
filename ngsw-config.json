@@ -36,5 +36,19 @@
         ]
       }
     }
+  ],
+  "dataGroups": [
+    {
+      "name": "cdn-mediapipe",
+      "urls": [
+        "https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 50,
+        "maxAge": "7d",
+        "timeout": "10s"
+      }
+    }
   ]
 }
