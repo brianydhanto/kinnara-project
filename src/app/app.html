@@ -109,10 +109,12 @@
         <div>
           <!-- <p>Debug: {{ eyeResult() }}</p>
           <p>Debug: {{ device() }}</p> -->
-          @if (!passed()) {
-            <h2 class="text-orange-400">mohon kedipkan mata 2x</h2>
-          } @else {
-            <h2 class="text-green-400">Validasi berhasil</h2>
+          @defer (on timer(500ms)) {
+            @if (!passed()) {
+              <h2 class="text-orange-400">mohon kedipkan mata 2x</h2>
+            } @else {
+              <h2 class="text-green-400">Validasi berhasil</h2>
+            }
           }
         </div>
       </div>

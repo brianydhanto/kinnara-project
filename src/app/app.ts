@@ -66,6 +66,15 @@ export class App {
   online$ = new BehaviorSubject<boolean>(navigator.onLine);
   
   constructor(private http: HttpClient, private toastr: ToastrService) {
+    this.faceMesh = new FaceMesh({
+      locateFile: (file) => {
+        const url = `${file}`;
+        return url;
+      }
+    });
+
+    localStorage.setItem('faceMesh', JSON.stringify(this.faceMesh))
+
     this.type = "text"
     this.textInput = ""
     this.documentText = ""
@@ -76,7 +85,11 @@ export class App {
     this.audioUrl = signal(null)
     this.passed = signal(false)
     window.addEventListener('online', () => this.toastr.success("Anda dalam keadaan online", "Online"));
-    window.addEventListener('offline', () => this.toastr.error("Anda dalam keadaan offline", "Offline"));
+    window.addEventListener('offline', () => {
+      this.toastr.error("Anda dalam keadaan offline", "Offline");
+      const faceMesh = localStorage.getItem('faceMesh');
+      this.faceMesh = faceMesh;
+    });
   }
 
   // @HostListener('window:resize')
@@ -125,21 +138,22 @@ export class App {
   }
 
   camera: any;
+  faceMesh: any;
   initCamera() {
     // const faceMesh = new FaceMesh({
     //   locateFile: (file) =>
     //     `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     // });
 
-    const faceMesh = new FaceMesh({
-      locateFile: (file) => {
-        const url = `${file}`;
-        return url;
-      }
-    });
+    // const faceMesh = new FaceMesh({
+    //   locateFile: (file) => {
+    //     const url = `${file}`;
+    //     return url;
+    //   }
+    // });
 
 
-    faceMesh.setOptions({
+    this.faceMesh.setOptions({
       maxNumFaces: 1,
       refineLandmarks: true,
       minDetectionConfidence: 0.7,
@@ -148,11 +162,11 @@ export class App {
       selfieMode: true,
     });
 
-    faceMesh.onResults((results) => this.onResults(results));
+    this.faceMesh.onResults((results: any) => this.onResults(results));
 
     this.camera = new Camera(this.videoRef.nativeElement, {
       onFrame: async () => {
-        await faceMesh.send({ image: this.videoRef.nativeElement });
+        await this.faceMesh.send({ image: this.videoRef.nativeElement });
       },
       width: 1280,
       height: 720,
