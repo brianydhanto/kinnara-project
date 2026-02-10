@@ -87,8 +87,8 @@ export class App {
     window.addEventListener('online', () => this.toastr.success("Anda dalam keadaan online", "Online"));
     window.addEventListener('offline', () => {
       this.toastr.error("Anda dalam keadaan offline", "Offline");
-      const faceMesh = localStorage.getItem('faceMesh');
-      this.faceMesh = faceMesh;
+      const faceMesh: any = localStorage.getItem('faceMesh');
+      this.faceMesh = JSON.parse(faceMesh);
     });
   }
 
