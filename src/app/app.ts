@@ -78,16 +78,20 @@ export class App {
     this.passed = signal(false)
     window.addEventListener('online', () => {
       this.toastr.success("Anda dalam keadaan online", "Online");
-      if (this.type === 'detection') {
-        this.initCamera()
-      }
+      window.location.reload();
+      
     });
-    window.addEventListener('offline', async () => {
-      await this.toastr.error("Anda dalam keadaan offline", "Offline");
-      await this.preloadFaceMesh();
-      await this.initCamera();
+    window.addEventListener('offline', () => {
+      this.toastr.error("Anda dalam keadaan offline", "Offline");
       // const faceMesh: any = localStorage.getItem('faceMesh');
       // this.faceMesh = JSON.parse(faceMesh);
+      if (this.camera) {
+        this.camera.stop();
+      }
+
+      if (this.faceMesh) {
+        this.faceMesh.close();
+      }
     });
   }
 
