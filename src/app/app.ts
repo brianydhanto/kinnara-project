@@ -67,11 +67,11 @@ export class App {
   
   constructor(private http: HttpClient, private toastr: ToastrService) {
     this.faceMesh = new FaceMesh({
-      locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+      locateFile: (file) => {
+        const url = `/assets/mediapipe/face_mesh/${file}`;
+        return url;
+      }
     });
-
-    console.log(this.faceMesh, 1)
 
     localStorage.setItem('faceMesh', JSON.stringify(this.faceMesh))
 
@@ -87,9 +87,8 @@ export class App {
     window.addEventListener('online', () => this.toastr.success("Anda dalam keadaan online", "Online"));
     window.addEventListener('offline', () => {
       this.toastr.error("Anda dalam keadaan offline", "Offline");
-      const faceMesh: any = localStorage.getItem('faceMesh');
-      this.faceMesh = new FaceMesh(JSON.parse(faceMesh));
-      console.log(this.faceMesh, 2)
+      // const faceMesh: any = localStorage.getItem('faceMesh');
+      // this.faceMesh = JSON.parse(faceMesh);
     });
   }
 
