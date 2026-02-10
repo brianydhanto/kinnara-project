@@ -34,11 +34,11 @@ html {
 @media screen and (max-width: 736px) {
   /* CSS rules to apply when the screen width is 600px or less */
   .camera-wrapper {
-    position: relative;
-    width: 100%;
-    /* height: 100%; */
-    /* max-width: 720px; */
-    /* margin: auto; */
+        position: relative;
+        width: 100%;
+        height: 100%;
+        /* max-width: 720px; */
+        margin: auto;
     }
 
     .camera-wrapper video,
@@ -46,8 +46,8 @@ html {
         position: absolute;
         inset: 0;
         width: 100%;
-        /* height: 100%; */
-        /* object-fit: cover; */
+        height: 100%;
+        object-fit: cover;
         /* background-color: black;  */
     }
 }
