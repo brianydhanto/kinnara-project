@@ -28,7 +28,7 @@
     },
     {
       "name": "mediapipe-face-mesh",
-      "installMode": "lazy",
+      "installMode": "prefetch",
       "updateMode": "prefetch",
       "resources": {
         "files": [
