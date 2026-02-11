@@ -215,8 +215,8 @@ export class App implements OnInit {
       onFrame: async () => {
         await this.faceMesh.send({ image: this.videoRef.nativeElement });
       },
-      width: 1280,
-      height: 720,
+      width: this.isMobile ? 720 : 1280,
+      height: this.isMobile ? 1280 : 720,
     });
 
     this.camera.start();
