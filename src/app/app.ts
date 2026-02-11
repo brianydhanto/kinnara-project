@@ -69,12 +69,12 @@ export class App implements OnInit {
   swUpdate = inject(SwUpdate);
   swStatus = inject(SwStatusService);
   constructor(private http: HttpClient, private toastr: ToastrService) {
-    if (this.swUpdate.isEnabled) {
-      this.swUpdate.versionUpdates.subscribe(() => {
-        console.log('New version detected');
-        window.location.reload();
-      });
-    }
+    // if (this.swUpdate.isEnabled) {
+    //   this.swUpdate.versionUpdates.subscribe(() => {
+    //     console.log('New version detected');
+    //     window.location.reload();
+    //   });
+    // }
     this.type = "text"
     this.textInput = ""
     this.documentText = ""
