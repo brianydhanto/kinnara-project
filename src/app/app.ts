@@ -120,8 +120,9 @@ export class App implements OnInit {
     await this.swStatus.checkServiceWorker();
 
     await this.swStatus.checkWasmCache(
-      '/assets/mediapipe/face_mesh_solution_simd_wasm_bin.wasm'
+      '/assets/mediapipe/face_mesh/face_mesh_solution_simd_wasm_bin.wasm'
     );
+    
     // await this.preloadFaceMesh();
     this.faceMesh = new FaceMesh({
       locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
