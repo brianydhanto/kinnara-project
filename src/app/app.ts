@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, HostListener, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, OnInit, signal, ViewChild, WritableSignal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
 import { Camera } from '@mediapipe/camera_utils';
@@ -16,6 +16,7 @@ import {
   FACEMESH_LEFT_EYE
 } from '@mediapipe/face_mesh';
 import { ToastrService } from 'ngx-toastr';
+import { SwUpdate } from '@angular/service-worker';
 
 declare global {
   interface Window {
@@ -64,9 +65,14 @@ export class App implements OnInit {
   isRecording: WritableSignal<boolean>;
   passed: WritableSignal<boolean>;
   online$ = new BehaviorSubject<boolean>(navigator.onLine);
-  
+  swUpdate = inject(SwUpdate);
   constructor(private http: HttpClient, private toastr: ToastrService) {
-    
+    if (this.swUpdate.isEnabled) {
+      this.swUpdate.versionUpdates.subscribe(() => {
+        console.log('New version detected');
+        window.location.reload();
+      });
+    }
     this.type = "text"
     this.textInput = ""
     this.documentText = ""
@@ -76,6 +82,7 @@ export class App implements OnInit {
     this.isRecording = signal(false)
     this.audioUrl = signal(null)
     this.passed = signal(false)
+    
     window.addEventListener('online', () => {
       this.toastr.success("Anda dalam keadaan online", "Online");
       // window.location.reload();
