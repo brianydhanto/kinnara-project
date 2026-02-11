@@ -108,7 +108,7 @@ export class App implements OnInit {
   // }
 
   async ngOnInit() {
-    await this.preloadFaceMesh();
+    // await this.preloadFaceMesh();
     this.faceMesh = new FaceMesh({
       locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
     });
