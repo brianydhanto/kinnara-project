@@ -131,6 +131,8 @@ export class App implements OnInit {
       locateFile: (file) =>
         `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     });
+
+    await this.prefetchFaceMesh();
     // this.faceMesh.setOptions({
     //   maxNumFaces: 1,
     //   refineLandmarks: true,
@@ -198,6 +200,21 @@ export class App implements OnInit {
   onResetDevice() {
     this.onStop()
     this.stopRecording()
+  }
+
+  async prefetchFaceMesh() {
+    const offscreenCanvas = document.createElement('canvas');
+    offscreenCanvas.width = 1;
+    offscreenCanvas.height = 1;
+
+    const ctx = offscreenCanvas.getContext('2d');
+    ctx?.fillRect(0, 0, 1, 1);
+
+    await this.faceMesh.send({
+      image: offscreenCanvas
+    });
+
+    console.log("Model loaded & cached");
   }
 
 
