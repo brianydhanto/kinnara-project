@@ -17,6 +17,7 @@ import {
 } from '@mediapipe/face_mesh';
 import { ToastrService } from 'ngx-toastr';
 import { SwUpdate } from '@angular/service-worker';
+import { SwStatusService } from '../services/sw-status.service';
 
 declare global {
   interface Window {
@@ -66,6 +67,7 @@ export class App implements OnInit {
   passed: WritableSignal<boolean>;
   online$ = new BehaviorSubject<boolean>(navigator.onLine);
   swUpdate = inject(SwUpdate);
+  swStatus = inject(SwStatusService);
   constructor(private http: HttpClient, private toastr: ToastrService) {
     if (this.swUpdate.isEnabled) {
       this.swUpdate.versionUpdates.subscribe(() => {
@@ -115,6 +117,11 @@ export class App implements OnInit {
   // }
 
   async ngOnInit() {
+    await this.swStatus.checkServiceWorker();
+
+    await this.swStatus.checkWasmCache(
+      '/assets/mediapipe/face_mesh_solution_simd_wasm_bin.wasm'
+    );
     // await this.preloadFaceMesh();
     this.faceMesh = new FaceMesh({
       locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
