@@ -162,20 +162,20 @@
       </div>
     }
 
-    <!-- <div class="debug-panel">
-      <p>Service Worker:
+    <div class="debug-panel">
+      <!-- <p>Service Worker:
         <span [class.ok]="swStatus.swActive()" 
               [class.bad]="!swStatus.swActive()">
           {{ swStatus.swActive() ? 'Aktif' : 'Tidak Aktif' }}
         </span>
-      </p>
+      </p> -->
 
-      <p>WASM Cached:
+      <!-- <p>WASM Cached:
         <span [class.ok]="swStatus.wasmCached()" 
               [class.bad]="!swStatus.wasmCached()">
           {{ swStatus.wasmCached() ? 'Tersimpan' : 'Belum Ada' }}
         </span>
-      </p>
+      </p> -->
 
       <p>Network:
         <span [class.ok]="swStatus.online()" 
@@ -183,7 +183,7 @@
           {{ swStatus.online() ? 'Online' : 'Offline' }}
         </span>
       </p>
-    </div> -->
+    </div>
   </div>
 </main>
 
