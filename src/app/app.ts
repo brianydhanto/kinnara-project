@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
 import { Camera } from '@mediapipe/camera_utils';
 import { FaceMesh } from '@mediapipe/face_mesh';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, filter } from 'rxjs';
 import {
   drawConnectors,
   drawLandmarks
@@ -16,7 +16,7 @@ import {
   FACEMESH_LEFT_EYE
 } from '@mediapipe/face_mesh';
 import { ToastrService } from 'ngx-toastr';
-import { SwUpdate } from '@angular/service-worker';
+import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { SwStatusService } from '../services/sw-status.service';
 
 declare global {
@@ -117,6 +117,20 @@ export class App implements OnInit {
   // }
 
   async ngOnInit() {
+    if (this.swUpdate.isEnabled) {
+      this.swUpdate.versionUpdates
+        .pipe(
+          filter((event): event is VersionReadyEvent => 
+            event.type === 'VERSION_READY'
+          )
+        )
+        .subscribe(() => {
+          console.log('New version ready');
+          this.swUpdate.activateUpdate().then(() => {
+            window.location.reload();
+          });
+        });
+    }
     await this.swStatus.checkServiceWorker();
 
     await this.swStatus.checkWasmCache(
