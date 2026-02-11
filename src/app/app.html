@@ -101,23 +101,23 @@
         </div>
       }
     } @else if (type === 'detection') {
-      <div class="camera-wrapper md:mx-auto z-0">
+      <div class="camera-wrapper md:mx-auto">
         <video #video autoplay playsinline class="md:mx-auto"></video>
         <canvas #canvas class="md:mx-auto"></canvas>
       </div>
-      <div class="z-100 w-full flex justify-center">
-        <div>
-          <!-- <p>Debug: {{ eyeResult() }}</p>
-          <p>Debug: {{ device() }}</p> -->
-          @defer (on timer(500ms)) {
+      @if (isCameraGranted()) {
+        <div class="w-full flex justify-center">
+          <div>
+            <!-- <p>Debug: {{ eyeResult() }}</p>
+            <p>Debug: {{ device() }}</p> -->
             @if (!passed()) {
               <h2 class="text-orange-400">mohon kedipkan mata 2x</h2>
             } @else {
               <h2 class="text-green-400">Validasi berhasil</h2>
             }
-          }
+          </div>
         </div>
-      </div>
+      }
       
     }
 

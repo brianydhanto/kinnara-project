@@ -52,9 +52,9 @@ html {
     }
 }
 
-/* video {
+video {
   transform: scaleX(-1);
-} */
+}
 
 .camera-wrapper canvas {
   pointer-events: none;

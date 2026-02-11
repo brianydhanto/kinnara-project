@@ -108,10 +108,10 @@ export class App implements OnInit {
   // }
 
   async ngOnInit() {
-    // await this.preloadFaceMesh();
-    // this.faceMesh = new FaceMesh({
-    //   locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
-    // });
+    await this.preloadFaceMesh();
+    this.faceMesh = new FaceMesh({
+      locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
+    });
     // this.faceMesh = new FaceMesh({
     //   locateFile: (file) =>
     //     `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
@@ -185,16 +185,20 @@ export class App implements OnInit {
     this.stopRecording()
   }
 
+
+  // INIT CAMERA UTILITY FROM MEDIA PIPE
   camera: any;
   faceMesh: any;
-  initCamera() {
-    this.faceMesh = new FaceMesh({
-      locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
-    });
-
-    
-
+  isCameraGranted: WritableSignal<boolean> = signal(false);
+  async initCamera() {
+    const camerePermission = await this.checkCameraPermission()
+    if (camerePermission === 'granted') {
+      this.isCameraGranted.set(true);
+    }
+    // this.faceMesh = new FaceMesh({
+    //   locateFile: (file) =>
+    //     `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+    // });
 
     this.faceMesh.setOptions({
       maxNumFaces: 1,
@@ -216,6 +220,18 @@ export class App implements OnInit {
     });
 
     this.camera.start();
+  }
+
+  async checkCameraPermission() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach(track => track.stop());
+      return 'granted';
+    } catch (err: any) {
+      if (err.name === 'NotAllowedError') return 'denied';
+      if (err.name === 'NotFoundError') return 'no-camera';
+      return 'error';
+    }
   }
 
   getEyeAxis(a: any, b: any) {
