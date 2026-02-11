@@ -122,15 +122,15 @@ export class App implements OnInit {
     await this.swStatus.checkWasmCache(
       '/assets/mediapipe/face_mesh/face_mesh_solution_simd_wasm_bin.wasm'
     );
-    
+
     // await this.preloadFaceMesh();
-    this.faceMesh = new FaceMesh({
-      locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
-    });
     // this.faceMesh = new FaceMesh({
-    //   locateFile: (file) =>
-    //     `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+    //   locateFile: (file) => `assets/mediapipe/face_mesh/${file}`,
     // });
+    this.faceMesh = new FaceMesh({
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
+    });
     // this.faceMesh.setOptions({
     //   maxNumFaces: 1,
     //   refineLandmarks: true,
