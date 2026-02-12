@@ -8,7 +8,7 @@ import { FaceMesh } from '@mediapipe/face_mesh';
 import { BehaviorSubject, filter } from 'rxjs';
 import {
   drawConnectors,
-  drawLandmarks
+  drawLandmarks,
 } from '@mediapipe/drawing_utils';
 import {
   FACEMESH_TESSELATION,
@@ -18,6 +18,7 @@ import {
 import { ToastrService } from 'ngx-toastr';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { SwStatusService } from '../services/sw-status.service';
+import { FaceDetection } from '@mediapipe/face_detection';
 
 declare global {
   interface Window {
@@ -51,6 +52,25 @@ export class App implements OnInit {
   }
   canvasRef!: ElementRef<HTMLCanvasElement>;
 
+  @ViewChild('canvasElement')
+  set canvasImage(el: ElementRef<HTMLCanvasElement>) {
+    if (el) {
+      this.canvasElRef = el;
+      this.initMediaPipe();
+    }
+  }
+  canvasElRef!: ElementRef<HTMLCanvasElement>;
+
+  @ViewChild('imageElement')
+  set image(el: ElementRef<HTMLImageElement>) {
+    if (el) {
+      this.imageRef = el;
+    }
+  }
+  imageRef!: ElementRef<HTMLImageElement>;
+
+  imageUrl: string | null = null;
+  faceDetection!: FaceDetection;
   type: string
   textInput: string
   documentText: string
@@ -159,6 +179,121 @@ export class App implements OnInit {
     // this.faceMesh.onResults((results: any) => this.onResults(results));
 
     
+  }
+
+  onFileSelectedImage(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.imageUrl = URL.createObjectURL(file);
+    }
+  }
+
+  async onDetectFace() {
+    if (!this.imageRef) return;
+
+    await this.faceDetection.send({
+      image: this.imageRef.nativeElement
+    });
+  }
+
+  drawResults(results: any) {
+    console.log(results)
+    const canvas = this.canvasElRef.nativeElement;
+    const image = this.imageRef.nativeElement;
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) return;
+
+    const imgWidth = image.naturalWidth;
+    const imgHeight = image.naturalHeight;
+
+    canvas.width = imgWidth;
+    canvas.height = imgHeight;
+
+    canvas.style.width = image.clientWidth + 'px';
+    canvas.style.height = image.clientHeight + 'px';
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!results.detections || results.detections.length === 0) {
+      console.log("No face detected");
+      return;
+    }
+
+    results.detections.forEach((detection: any) => {
+
+      // 🔥 SUPPORT 2 STRUKTUR VERSI
+      let bbox;
+
+      if (detection.locationData?.relativeBoundingBox) {
+        bbox = detection.locationData.relativeBoundingBox;
+
+        bbox = {
+          xMin: bbox.xMin,
+          yMin: bbox.yMin,
+          width: bbox.width,
+          height: bbox.height
+        };
+
+      } else if (detection.boundingBox) {
+        bbox = detection.boundingBox;
+
+        bbox = {
+          xMin: bbox.xCenter - bbox.width / 2,
+          yMin: bbox.yCenter - bbox.height / 2,
+          width: bbox.width,
+          height: bbox.height
+        };
+
+      } else {
+        console.log("Unknown detection format:", detection);
+        return;
+      }
+
+      const x = bbox.xMin * imgWidth;
+      const y = bbox.yMin * imgHeight;
+      const width = bbox.width * imgWidth;
+      const height = bbox.height * imgHeight;
+
+      ctx.beginPath();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = 'lime';
+      ctx.rect(x, y, width, height);
+      ctx.stroke();
+
+      // const confidence = (detection.score[0] * 100).toFixed(1);
+      const confidence =
+      detection.score?.[0] ??
+      detection.V?.[0]?.ga ??
+      0;
+
+      const percent = (confidence * 100).toFixed(1);
+
+      ctx.fillStyle = 'lime';
+      ctx.font = '28px Arial';
+      ctx.fillText(
+        percent + '%',
+        x,
+        y > 30 ? y - 10 : y + 30
+      );
+    });
+  }
+
+  initMediaPipe() {
+    this.faceDetection = new FaceDetection({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
+      }
+    });
+
+    this.faceDetection.setOptions({
+      model: 'short',
+      minDetectionConfidence: 0.5
+    });
+
+    this.faceDetection.onResults((results) => {
+      this.drawResults(results);
+    });
   }
 
   mirrorCanvas(ctx: CanvasRenderingContext2D) {
@@ -685,7 +820,7 @@ export class App implements OnInit {
         const blob = await new Blob(this.audioChunks, { type: 'audio/webm' });
         this.file = await new File([blob], 'audio.webm', { type: 'audio/webm' });
 
-        // await this.saveRecording(blob);
+        await this.saveRecording(blob);
         
         await this.audioUrl.set(URL.createObjectURL(audioBlob))
       };

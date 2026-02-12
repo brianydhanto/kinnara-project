@@ -50,6 +50,16 @@
         <input
           type="radio"
           name="source"
+          value="liveness"
+          [(ngModel)]="type"
+        />
+        Liveness Detection
+      </label>
+
+      <label>
+        <input
+          type="radio"
+          name="source"
           value="detection"
           [(ngModel)]="type"
         />
@@ -100,7 +110,7 @@
           <audio [src]="audioUrl()" controls></audio>
         </div>
       }
-    } @else if (type === 'detection') {
+    } @else if (type === 'liveness') {
       <div class="camera-wrapper md:mx-auto">
         <video #video autoplay playsinline class="md:mx-auto"></video>
         <canvas #canvas class="md:mx-auto"></canvas>
@@ -118,8 +128,30 @@
           </div>
         }
       </div>
-      
-      
+    } @else if (type === 'detection') {
+      <div class="container">
+
+        <!-- <input type="file" accept="image/*" (change)="onFileSelectedImage($event)" /> -->
+
+        <div class="file-wrapper">
+          <label class="file-btn">
+            Choose File
+            <input
+              type="file"
+              (change)="onFileSelectedImage($event)"
+              hidden
+              accept="image/*"
+            />
+          </label>
+        </div>
+
+        @if (imageUrl) {
+          <div class="preview-container">
+            <img #imageElement [src]="imageUrl" (load)="onDetectFace()" />
+            <canvas #canvasElement></canvas>
+          </div>
+        }
+      </div>
     }
 
     @if (type === 'text' || type === 'document') {
