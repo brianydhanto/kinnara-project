@@ -10,11 +10,6 @@ import {
   drawConnectors,
   drawLandmarks,
 } from '@mediapipe/drawing_utils';
-import {
-  FACEMESH_TESSELATION,
-  FACEMESH_RIGHT_EYE,
-  FACEMESH_LEFT_EYE
-} from '@mediapipe/face_mesh';
 import { ToastrService } from 'ngx-toastr';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { SwStatusService } from '../services/sw-status.service';
@@ -288,7 +283,7 @@ export class App implements OnInit {
 
     this.faceDetection.setOptions({
       model: 'short',
-      minDetectionConfidence: 0.5
+      minDetectionConfidence: 0.3
     });
 
     this.faceDetection.onResults((results) => {
