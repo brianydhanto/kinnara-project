@@ -685,7 +685,7 @@ export class App implements OnInit {
         const blob = await new Blob(this.audioChunks, { type: 'audio/webm' });
         this.file = await new File([blob], 'audio.webm', { type: 'audio/webm' });
 
-        await this.saveRecording(blob);
+        // await this.saveRecording(blob);
         
         await this.audioUrl.set(URL.createObjectURL(audioBlob))
       };
