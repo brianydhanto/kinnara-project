@@ -371,20 +371,27 @@ export class App implements OnInit {
   }
 
   async prefetchFaceDetection() {
-  if (!this.faceDetection) return;
+  return new Promise<void>((resolve) => {
 
-  const offscreenCanvas = document.createElement('canvas');
-  offscreenCanvas.width = 1;
-  offscreenCanvas.height = 1;
+    const dummyImg = new Image();
+    dummyImg.width = 1;
+    dummyImg.height = 1;
 
-  const ctx = offscreenCanvas.getContext('2d');
-  ctx?.fillRect(0, 0, 1, 1);
+    dummyImg.onload = async () => {
+      try {
+        await this.faceDetection.initialize();
+        console.log("FaceDetection CDN initialized");
+        resolve();
+      } catch (e) {
+        console.warn("Prefetch skipped:", e);
+        resolve();
+      }
+    };
 
-  await this.faceDetection.send({
-    image: offscreenCanvas
+    dummyImg.src =
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB";
+
   });
-
-  console.log("Face Detection model loaded & cached");
 }
 
 
