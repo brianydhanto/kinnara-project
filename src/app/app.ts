@@ -161,7 +161,14 @@ export class App implements OnInit {
         `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
     });
 
+    this.faceDetection = new FaceDetection({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
+      }
+    });
+
     await this.prefetchFaceMesh();
+    await this.prefetchFaceDetection();
     // this.faceMesh.setOptions({
     //   maxNumFaces: 1,
     //   refineLandmarks: true,
@@ -257,12 +264,13 @@ export class App implements OnInit {
       ctx.stroke();
 
       // const confidence = (detection.score[0] * 100).toFixed(1);
-      const confidence =
+      let rawConfidence =
       detection.score?.[0] ??
       detection.V?.[0]?.ga ??
       0;
 
-      const percent = (confidence * 100).toFixed(1);
+    const adjustedConfidence = this.adjustConfidence(rawConfidence, bbox);
+    const percent = (adjustedConfidence * 100).toFixed(1);
 
       ctx.fillStyle = 'lime';
       ctx.font = '28px Arial';
@@ -283,7 +291,8 @@ export class App implements OnInit {
 
     this.faceDetection.setOptions({
       model: 'short',
-      minDetectionConfidence: 0.3
+      selfieMode: false,
+      minDetectionConfidence: 0.3,
     });
 
     this.faceDetection.onResults((results) => {
@@ -360,6 +369,23 @@ export class App implements OnInit {
 
     console.log("Model loaded & cached");
   }
+
+  async prefetchFaceDetection() {
+  if (!this.faceDetection) return;
+
+  const offscreenCanvas = document.createElement('canvas');
+  offscreenCanvas.width = 1;
+  offscreenCanvas.height = 1;
+
+  const ctx = offscreenCanvas.getContext('2d');
+  ctx?.fillRect(0, 0, 1, 1);
+
+  await this.faceDetection.send({
+    image: offscreenCanvas
+  });
+
+  console.log("Face Detection model loaded & cached");
+}
 
 
   // INIT CAMERA UTILITY FROM MEDIA PIPE
@@ -1001,6 +1027,17 @@ export class App implements OnInit {
       const req = store.getAll();
       req.onsuccess = () => resolve(req.result);
     });
+  }
+
+  adjustConfidence(raw: number, bbox: any) {
+    const faceArea = bbox.width * bbox.height;
+
+    // wajah sangat kecil biasanya < 0.02
+    const sizeFactor = Math.min(faceArea / 0.02, 1);
+
+    const adjusted = raw * (0.6 + 0.4 * sizeFactor);
+
+    return Math.min(adjusted, 1);
   }
   
 }
