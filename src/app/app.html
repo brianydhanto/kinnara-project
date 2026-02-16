@@ -2,66 +2,68 @@
   <div class="content">
     <h1>{{ title() }}</h1>
     <div class="form-container flex gap-2 flex-col md:flex-row">
-      <label>
+      <label class="radio-label">
         <input
           type="radio"
           name="source"
           value="text"
           [(ngModel)]="type"
-          (click)="onResetDevice()"
+          (click)="onResetDevice('text')"
         />
         Text
       </label>
 
-      <label>
+      <label class="radio-label">
         <input
           type="radio"
           name="source"
           value="document"
           [(ngModel)]="type"
-          (click)="onResetDevice()"
+          (click)="onResetDevice('document')"
         />
         Document
       </label>
 
-      <label>
+      <label class="radio-label">
         <input
           type="radio"
           name="source"
           value="speech"
           [(ngModel)]="type"
-          (click)="onResetTranscript()"
+          (click)="onResetDevice('speech')"
         />
         Speech to text
       </label>
 
-      <label>
+      <label class="radio-label">
         <input
           type="radio"
           name="source"
           value="record"
           [(ngModel)]="type"
-          (click)="onResetTranscript()"
+          (click)="onResetDevice('record')"
         />
         Record
       </label>
 
-      <label>
+      <label class="radio-label">
         <input
           type="radio"
           name="source"
           value="liveness"
           [(ngModel)]="type"
+          (click)="onResetDevice('liveness')"
         />
         Liveness Detection
       </label>
 
-      <label>
+      <label class="radio-label">
         <input
           type="radio"
           name="source"
           value="detection"
           [(ngModel)]="type"
+          (click)="onResetDevice('detection')"
         />
         Face Detection
       </label>
@@ -131,8 +133,7 @@
     } @else if (type === 'detection') {
       <div class="container">
 
-        <!-- <input type="file" accept="image/*" (change)="onFileSelectedImage($event)" /> -->
-
+        <!-- Upload Button -->
         <div class="file-wrapper">
           <label class="file-btn">
             Choose File
@@ -145,12 +146,42 @@
           </label>
         </div>
 
-        @if (imageUrl) {
-          <div class="preview-container">
-            <img #imageElement [src]="imageUrl" (load)="onDetectFace()" />
-            <canvas #canvasElement></canvas>
+        <div class="compare-wrapper">
+
+          <!-- @if (imageUrl) { -->
+            <div class="preview-wrapper-img">
+              <div class="preview-container">
+                <img
+                  #imageElement
+                  [src]="imageUrl"
+                  (load)="onDetectFace()"
+                />
+                <canvas
+                  #canvasElement
+                  class="overlay"
+                ></canvas>
+              </div>
+            </div>
+          <!-- } -->
+
+          <div class="preview-wrapper-vdo">
+            <div class="preview-container">
+              <video
+                #videoCompare
+                autoplay
+                playsinline
+                class="webcam-video"
+              ></video>
+
+              <canvas
+                #canvasCompare
+                class="overlay"
+              ></canvas>
+
+            </div>
           </div>
-        }
+
+        </div>
       </div>
     }
 

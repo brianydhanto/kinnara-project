@@ -38,6 +38,15 @@ export class App implements OnInit {
     }
   }
   videoRef!: ElementRef<HTMLVideoElement>;
+
+  @ViewChild('videoCompare')
+  set videoCompare(el: ElementRef<HTMLVideoElement>) {
+    if (el) {
+      this.videoCompareRef = el;
+      this.initCompareCamera();
+    }
+  }
+  videoCompareRef!: ElementRef<HTMLVideoElement>;
   
   @ViewChild('canvas')
   set canvas(el: ElementRef<HTMLCanvasElement>) {
@@ -46,6 +55,14 @@ export class App implements OnInit {
     }
   }
   canvasRef!: ElementRef<HTMLCanvasElement>;
+
+  @ViewChild('canvasCompare')
+  set canvasCompare(el: ElementRef<HTMLCanvasElement>) {
+    if (el) {
+      this.canvasCompareRef = el;
+    }
+  }
+  canvasCompareRef!: ElementRef<HTMLCanvasElement>;
 
   @ViewChild('canvasElement')
   set canvasImage(el: ElementRef<HTMLCanvasElement>) {
@@ -66,6 +83,8 @@ export class App implements OnInit {
 
   imageUrl: string | null = null;
   faceDetection!: FaceDetection;
+  faceDetectionLive!: FaceDetection;
+  cameraCompare: any;
   type: string
   textInput: string
   documentText: string
@@ -84,12 +103,6 @@ export class App implements OnInit {
   swUpdate = inject(SwUpdate);
   swStatus = inject(SwStatusService);
   constructor(private http: HttpClient, private toastr: ToastrService) {
-    // if (this.swUpdate.isEnabled) {
-    //   this.swUpdate.versionUpdates.subscribe(() => {
-    //     console.log('New version detected');
-    //     window.location.reload();
-    //   });
-    // }
     this.type = "text"
     this.textInput = ""
     this.documentText = ""
@@ -101,35 +114,12 @@ export class App implements OnInit {
     this.passed = signal(false)
     
     window.addEventListener('online', () => {
-      this.toastr.success("Anda dalam keadaan online", "Online");
-      // window.location.reload();
-      
+      this.toastr.success("Anda dalam keadaan online", "Online");      
     });
     window.addEventListener('offline', async () => {
       this.toastr.error("Anda dalam keadaan offline", "Offline");
-      // const faceMesh: any = localStorage.getItem('faceMesh');
-      // this.faceMesh = JSON.parse(faceMesh);
-      // await this.preloadFaceMesh();
-      // if (this.camera) {
-      //   this.camera.stop();
-      // }
-
-      // if (this.faceMesh) {
-      //   this.faceMesh.close();
-      // }
     });
   }
-
-  // @HostListener('window:resize')
-  // onResize() {
-  //   this.syncCanvasSize();
-  // }
-
-  // ngAfterViewInit() {
-  //   window.addEventListener('resize', () => {
-  //     this.syncCanvasSize();
-  //   });
-  // }
 
   async ngOnInit() {
     if (this.swUpdate.isEnabled) {
@@ -168,19 +158,7 @@ export class App implements OnInit {
     });
 
     await this.prefetchFaceMesh();
-    await this.prefetchFaceDetection();
-    // this.faceMesh.setOptions({
-    //   maxNumFaces: 1,
-    //   refineLandmarks: true,
-    //   minDetectionConfidence: 0.7,
-    //   minTrackingConfidence: 0.7,
-    //   cameraVerticalFovDegrees: 63,
-    //   selfieMode: true,
-    // });
-
-    // this.faceMesh.onResults((results: any) => this.onResults(results));
-
-    
+    await this.prefetchFaceDetection();    
   }
 
   onFileSelectedImage(event: any) {
@@ -199,21 +177,23 @@ export class App implements OnInit {
   }
 
   drawResults(results: any) {
-    console.log(results)
     const canvas = this.canvasElRef.nativeElement;
     const image = this.imageRef.nativeElement;
     const ctx = canvas.getContext('2d');
 
     if (!ctx) return;
 
-    const imgWidth = image.naturalWidth;
-    const imgHeight = image.naturalHeight;
+    const naturalWidth = image.naturalWidth;
+    const naturalHeight = image.naturalHeight;
 
-    canvas.width = imgWidth;
-    canvas.height = imgHeight;
+    const displayWidth = image.clientWidth;
+    const displayHeight = image.clientHeight;
 
-    canvas.style.width = image.clientWidth + 'px';
-    canvas.style.height = image.clientHeight + 'px';
+    const scaleX = displayWidth / naturalWidth;
+    const scaleY = displayHeight / naturalHeight;
+
+    canvas.width = displayWidth;
+    canvas.height = displayHeight;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -224,60 +204,52 @@ export class App implements OnInit {
 
     results.detections.forEach((detection: any) => {
 
-      // 🔥 SUPPORT 2 STRUKTUR VERSI
       let bbox;
 
       if (detection.locationData?.relativeBoundingBox) {
         bbox = detection.locationData.relativeBoundingBox;
-
-        bbox = {
-          xMin: bbox.xMin,
-          yMin: bbox.yMin,
-          width: bbox.width,
-          height: bbox.height
-        };
-
       } else if (detection.boundingBox) {
-        bbox = detection.boundingBox;
-
+        const b = detection.boundingBox;
         bbox = {
-          xMin: bbox.xCenter - bbox.width / 2,
-          yMin: bbox.yCenter - bbox.height / 2,
-          width: bbox.width,
-          height: bbox.height
+          xMin: b.xCenter - b.width / 2,
+          yMin: b.yCenter - b.height / 2,
+          width: b.width,
+          height: b.height
         };
-
       } else {
-        console.log("Unknown detection format:", detection);
         return;
       }
 
-      const x = bbox.xMin * imgWidth;
-      const y = bbox.yMin * imgHeight;
-      const width = bbox.width * imgWidth;
-      const height = bbox.height * imgHeight;
+      const x = bbox.xMin * naturalWidth;
+      const y = bbox.yMin * naturalHeight;
+      const width = bbox.width * naturalWidth;
+      const height = bbox.height * naturalHeight;
+
+      const scaledX = x * scaleX;
+      const scaledY = y * scaleY;
+      const scaledWidth = width * scaleX;
+      const scaledHeight = height * scaleY;
 
       ctx.beginPath();
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 3;
       ctx.strokeStyle = 'lime';
-      ctx.rect(x, y, width, height);
+      ctx.rect(scaledX, scaledY, scaledWidth, scaledHeight);
       ctx.stroke();
 
-      // const confidence = (detection.score[0] * 100).toFixed(1);
       let rawConfidence =
-      detection.score?.[0] ??
-      detection.V?.[0]?.ga ??
-      0;
+        detection.score?.[0] ??
+        detection.V?.[0]?.ga ??
+        0;
 
-    const adjustedConfidence = this.adjustConfidence(rawConfidence, bbox);
-    const percent = (adjustedConfidence * 100).toFixed(1);
+      const adjustedConfidence = this.adjustConfidence(rawConfidence, bbox);
+      const percent = (adjustedConfidence * 100).toFixed(1);
 
       ctx.fillStyle = 'lime';
-      ctx.font = '28px Arial';
+      ctx.font = '16px Arial';
       ctx.fillText(
         percent + '%',
-        x,
-        y > 30 ? y - 10 : y + 30
+        scaledX,
+        scaledY > 20 ? scaledY - 5 : scaledY + 20
       );
     });
   }
@@ -350,9 +322,14 @@ export class App implements OnInit {
     });
   }
 
-  onResetDevice() {
-    this.onStop()
-    this.stopRecording()
+  async onResetDevice(type: string) {
+    if (this.type != type) {
+      this.audioChunks = [];
+      this.transcript.set("");
+      this.audioUrl.set("");
+      this.onStop();
+      this.stopRecording();
+    }
   }
 
   async prefetchFaceMesh() {
@@ -366,33 +343,31 @@ export class App implements OnInit {
     await this.faceMesh.send({
       image: offscreenCanvas
     });
-
-    console.log("Model loaded & cached");
   }
 
   async prefetchFaceDetection() {
-  return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve) => {
 
-    const dummyImg = new Image();
-    dummyImg.width = 1;
-    dummyImg.height = 1;
+      const dummyImg = new Image();
+      dummyImg.width = 1;
+      dummyImg.height = 1;
 
-    dummyImg.onload = async () => {
-      try {
-        await this.faceDetection.initialize();
-        console.log("FaceDetection CDN initialized");
-        resolve();
-      } catch (e) {
-        console.warn("Prefetch skipped:", e);
-        resolve();
-      }
-    };
+      dummyImg.onload = async () => {
+        try {
+          await this.faceDetection.initialize();
+          console.log("FaceDetection CDN initialized");
+          resolve();
+        } catch (e) {
+          console.warn("Prefetch skipped:", e);
+          resolve();
+        }
+      };
 
-    dummyImg.src =
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB";
+      dummyImg.src =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB";
 
-  });
-}
+    });
+  }
 
 
   // INIT CAMERA UTILITY FROM MEDIA PIPE
@@ -665,11 +640,6 @@ export class App implements OnInit {
   }
 
   calculateBothEyesEAR(landmarks: any[]) {
-    // const leftEAR = this.calculateEyeEAR(landmarks, 'left');
-    // const rightEAR = this.calculateEyeEAR(landmarks, 'right');
-
-    // return (leftEAR + rightEAR) / 2;
-
     const leftEAR = this.calculateEyeEARPortraitSafe(landmarks, 'left');
     const rightEAR = this.calculateEyeEARPortraitSafe(landmarks, 'right');
     const ear = (leftEAR + rightEAR) / 2;
@@ -878,11 +848,9 @@ export class App implements OnInit {
     this.recognition.interimResults = true;
 
     this.recognition.onstart = () => {
-      // this.isPlay.set(true)
     };
 
     this.recognition.onresult = (event: any) => {
-      // this.onUserSpeakingAgain();
       let finalText = '';
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -892,16 +860,13 @@ export class App implements OnInit {
       this.transcript.set(finalText)
       this.transcrip.next(finalText)
       if (finalText.toLocaleLowerCase().includes("ngerti") || finalText.toLocaleLowerCase().includes("mengerti")) {
-        // this.startSilenceCountdown();
       }
     };
 
     this.recognition.onerror = () => {
-      // this.isPlay.set(false)
     };
 
     this.recognition.onend = () => {
-      // this.isPlay.set(false)
     };
 
     this.recognition.start();
@@ -1039,12 +1004,144 @@ export class App implements OnInit {
   adjustConfidence(raw: number, bbox: any) {
     const faceArea = bbox.width * bbox.height;
 
-    // wajah sangat kecil biasanya < 0.02
     const sizeFactor = Math.min(faceArea / 0.02, 1);
 
     const adjusted = raw * (0.6 + 0.4 * sizeFactor);
 
     return Math.min(adjusted, 1);
+  }
+
+  async initCompareCamera() {
+
+    this.faceDetectionLive = new FaceDetection({
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`,
+    });
+
+    this.faceDetectionLive.setOptions({
+      model: 'short',
+      selfieMode: true,
+      minDetectionConfidence: 0.5
+    });
+
+    this.faceDetectionLive.onResults((results) => {
+      this.drawLiveResults(results);
+    });
+
+    this.cameraCompare = new Camera(this.videoCompareRef.nativeElement, {
+      onFrame: async () => {
+        await this.faceDetectionLive.send({
+          image: this.videoCompareRef.nativeElement
+        });
+      },
+      width: 1920,
+      height: 1080,
+    });
+
+    this.cameraCompare.start();
+  }
+
+  drawLiveResults(results: any) {
+
+    const video = this.videoCompareRef?.nativeElement;
+    const canvas = this.canvasCompareRef?.nativeElement;
+    const ctx = canvas?.getContext('2d');
+
+    if (!video || !canvas || !ctx) return;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    canvas.style.width = video.clientWidth + 'px';
+    canvas.style.height = video.clientHeight + 'px';
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!results?.detections?.length) return;
+
+    results.detections.forEach((detection: any) => {
+
+      let bbox;
+
+      if (detection?.locationData?.relativeBoundingBox) {
+        const b = detection.locationData.relativeBoundingBox;
+
+        bbox = {
+          x: b.xMin * canvas.width,
+          y: b.yMin * canvas.height,
+          w: b.width * canvas.width,
+          h: b.height * canvas.height
+        };
+      }
+
+      else if (detection?.locationData?.boundingBox) {
+        const b = detection.locationData.boundingBox;
+
+        bbox = {
+          x: b.xMin,
+          y: b.yMin,
+          w: b.width,
+          h: b.height
+        };
+      }
+
+      else if (detection?.boundingBox) {
+        const b = detection.boundingBox;
+
+        bbox = {
+          x: (b.xCenter - b.width / 2) * canvas.width,
+          y: (b.yCenter - b.height / 2) * canvas.height,
+          w: b.width * canvas.width,
+          h: b.height * canvas.height
+        };
+      }
+
+      if (!bbox) return;
+
+      // confidence
+      let rawConfidence =
+        detection?.score?.[0] ??
+        detection?.confidence ??
+        detection?.V?.[0]?.ga ??
+        0;
+
+      const percent = Math.round(rawConfidence * 100);
+      const text = percent + '%';
+
+      ctx.beginPath();
+      ctx.lineWidth = 12;
+      ctx.strokeStyle = 'lime';
+      ctx.rect(bbox.x, bbox.y, bbox.w, bbox.h);
+      ctx.stroke();
+
+      ctx.font = 'bold 48px Arial';
+
+      const metrics = ctx.measureText(text);
+      const textWidth = metrics.width;
+      const textHeight =
+        metrics.actualBoundingBoxAscent +
+        metrics.actualBoundingBoxDescent;
+
+      const padding = 10;
+
+      const rectX = bbox.x;
+      const rectY = bbox.y - textHeight - padding * 2;
+      const rectW = textWidth + padding * 2;
+      const rectH = textHeight + padding * 2;
+
+      // background
+      ctx.fillStyle = 'lime';
+      ctx.fillRect(rectX, rectY, rectW, rectH);
+
+      // text
+      ctx.fillStyle = 'black';
+      ctx.fillText(
+        text,
+        rectX + padding,
+        rectY + textHeight + padding - metrics.actualBoundingBoxDescent
+      );
+
+    });
   }
   
 }

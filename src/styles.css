@@ -250,3 +250,65 @@ canvas {
   top: 0;
   left: 0;
 }
+
+.preview-wrapper-vdo {
+  width: 100%;
+  max-width: 400px; 
+}
+
+.preview-wrapper-img {
+  width: 100%;
+  max-width: 250px; 
+}
+
+.preview-container {
+  position: relative;
+  width: 100%;
+}
+
+.preview-container img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.preview-container canvas.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.compare-wrapper {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.compare-box {
+  width: 300px;
+}
+
+.preview-container {
+  position: relative;
+  width: 100%;
+}
+
+.preview-container video,
+.preview-container img {
+  width: 100%;
+  display: block;
+}
+
+.preview-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
